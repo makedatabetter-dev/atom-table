@@ -170,7 +170,11 @@ Custom property | Description | Default
 
       _setCurrentPageItems: function () {
         if (this.items && this.items.length) {
-          this.currentPageItems = this.items.slice(this._getStart() - 1, this._getEnd());
+          if (this.allowPaging) {
+            this.currentPageItems = this.items.slice(this._getStart() - 1, this._getEnd());
+          } else {
+            this.currentPageItems = this.items.slice();
+          }
         }
       },
 
