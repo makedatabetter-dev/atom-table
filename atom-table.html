@@ -84,12 +84,12 @@ Custom property | Description | Default
         <paper-icon-button class="global-search" icon="icons:search"></paper-icon-button>
       </template>
       <template is="dom-if" if="{{allowAddNew}}">
-        <paper-icon-button class="add-new" icon="icons:add"></paper-icon-button>
+        <paper-icon-button class="add-new" icon="icons:add" on-tap="_triggerAdd"></paper-icon-button>
       </template>
     </div>
     <div class="grid">
       <vaadin-grid id="grid" items="{{currentPageItems}}" active-item="{{activeItem}}">
-        <content></content>
+        <content select="vaadin-grid-column"></content>
       </vaadin-grid>
     </div>
     <div class="paging">
@@ -208,6 +208,10 @@ Custom property | Description | Default
 
       _getTotalRecordsCount: function () {
         return this.items.length;
+      },
+
+      _triggerAdd: function () {
+        this.fire('atom-table-add-new');
       }
     });
   </script>
