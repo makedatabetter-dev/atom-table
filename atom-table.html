@@ -47,6 +47,7 @@ Custom property | Description | Default
       }
 
        :host vaadin-grid {
+        max-height: 400px;
         @apply(--atom-table);
       }
 
@@ -78,6 +79,23 @@ Custom property | Description | Default
        :host .pagingButtons paper-icon-button {
         @apply(--atom-table-paging-buttons);
       }
+
+       :host .empty-message {
+        background-color: #fcfdff;
+        height: 100px;
+        border-bottom: 1px solid #e1e6ed;
+        position: relative;
+        /*border-top: 0;*/
+      }
+
+       :host .empty-message p {
+        position: absolute;
+        top: 25%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 20px;
+        font-weight: 400;
+      }
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
@@ -91,6 +109,11 @@ Custom property | Description | Default
       <vaadin-grid id="grid" items="{{currentPageItems}}" active-item="{{activeItem}}">
         <content select="vaadin-grid-column"></content>
       </vaadin-grid>
+      <template is="dom-if" if="[[!items.length]]">
+        <div class="empty-message">
+          <p>[[emptyMessage]]</p>
+        </div>
+      </template>
     </div>
     <div class="paging">
       <template is="dom-if" if="{{allowPaging}}">
@@ -156,6 +179,10 @@ Custom property | Description | Default
         },
         activeItem: {
           notify: true
+        },
+        emptyMessage: {
+          type: String,
+          value: 'No items found'
         }
       },
 
