@@ -123,7 +123,7 @@ Custom property | Description | Default
           <option>20</option>
           <option>50</option>
         </select>
-        <span class="pageNum">[[_getStart(pageNum,pageSize)]]-[[_getEnd(pageNum,pageSize)]] of [[_getTotalRecordsCount()]]</span>
+        <span class="pageNum">[[_getStart(items,pageNum,pageSize)]]-[[_getEnd(items,pageNum,pageSize)]] of [[_getTotalRecordsCount(items)]]</span>
         <div class="pagingButtons">
           <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
           <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
@@ -224,11 +224,11 @@ Custom property | Description | Default
         }
       },
 
-      _getStart: function (pageNum, pageSize) {
+      _getStart: function (items, pageNum, pageSize) {
         return ((parseInt(pageNum) || this.pageNum) - 1) * (parseInt(pageSize) || this.pageSize) + 1;
       },
 
-      _getEnd: function (pageNum, pageSize) {
+      _getEnd: function (items, pageNum, pageSize) {
         var end = (parseInt(pageNum) || this.pageNum) * (parseInt(pageSize) || this.pageSize);
         return end <= this.items.length ? end : this.items.length;
       },
