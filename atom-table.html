@@ -3,6 +3,7 @@
 <link rel="import" href="../vaadin-grid/vaadin-grid-sorter.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../atom-modal-dialog/atom-modal-dialog.html">
 
 <!--
 `atom-table`
@@ -96,18 +97,31 @@ Custom property | Description | Default
         font-size: 20px;
         font-weight: 400;
       }
+
+       :host atom-modal-dialog {
+        --atom-dialog: {
+          min-width: 400px;
+        }
+      }
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
         <paper-icon-button class="global-search" icon="icons:search"></paper-icon-button>
       </template>
       <template is="dom-if" if="{{allowAddNew}}">
-        <paper-icon-button class="add-new" icon="icons:add" on-tap="_triggerAdd"></paper-icon-button>
+        <paper-icon-button class="add-new" icon="icons:add" on-tap="_addItem"></paper-icon-button>
       </template>
     </div>
     <div class="grid">
       <vaadin-grid id="grid" items="{{currentPageItems}}" active-item="{{activeItem}}">
         <content select="vaadin-grid-column"></content>
+        <template is="dom-if" if="[[allowEdit]]">
+          <vaadin-grid-column>
+            <template>
+              <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0;" on-tap="_editItem"></paper-icon-button>
+            </template>
+          </vaadin-grid-column>
+        </template>
       </vaadin-grid>
       <template is="dom-if" if="[[!items.length]]">
         <div class="empty-message">
@@ -130,6 +144,11 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
+    <atom-modal-dialog id="modal" modal-title="Add New" buttons="[[_getButtons(allowEdit,allowDelete)]]">
+      <form action="">
+        <content select=".addnew"></content>
+      </form>
+    </atom-modal-dialog>
   </template>
 
   <script>
@@ -138,6 +157,14 @@ Custom property | Description | Default
       is: 'atom-table',
 
       properties: {
+        dataProvider: {
+          type: Object,
+          observer: '_dataProviderChanged'
+        },
+        idField: {
+          type: String,
+          value: '_id'
+        },
         allowFilters: {
           type: Boolean,
           value: false
@@ -159,6 +186,19 @@ Custom property | Description | Default
         allowAddNew: {
           type: Boolean,
           value: false
+        },
+        allowEdit: {
+          type: Boolean,
+          value: false
+        },
+        allowDelete: {
+          type: Boolean,
+          value: false
+        },
+        updateModel: {
+          type: Object,
+          value: undefined,
+          notify: true
         },
         allowGlobalSearch: {
           type: Boolean,
@@ -183,11 +223,16 @@ Custom property | Description | Default
         emptyMessage: {
           type: String,
           value: 'No items found'
+        },
+        _isEdit: {
+          type: Boolean,
+          value: false
         }
       },
 
-      clearCache: function () {
-        this.$.grid.clearCache();
+      listeners: {
+        'save': '_save',
+        'delete': '_delete'
       },
 
       _itemsChanged: function () {
@@ -200,6 +245,10 @@ Custom property | Description | Default
 
       _pageNumChanged: function () {
         this._setCurrentPageItems();
+      },
+
+      _dataProviderChanged: function () {
+
       },
 
       _setCurrentPageItems: function () {
@@ -237,8 +286,73 @@ Custom property | Description | Default
         return this.items.length;
       },
 
-      _triggerAdd: function () {
-        this.fire('atom-table-add-new');
+      _addItem: function (e) {
+        this.set('updateModel', {});
+        this._showModal();
+      },
+
+      _editItem: function (e) {
+        this.set('updateModel', e.model.item);
+
+        this._isEdit = true;
+        this._showModal();
+      },
+
+      _showModal: function () {
+        var modal = this.querySelector('atom-modal-dialog');
+        if (modal) modal.open();
+      },
+
+      _closeModal: function () {
+        var modal = this.querySelector('atom-modal-dialog');
+        if (modal) modal.close();
+      },
+
+      _save: function (e) {
+        var that = this;
+        if (this.dataProvider && this.dataProvider.save && typeof this.dataProvider.save === typeof function () { }) {
+          this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
+            .then(function (model) {
+              that.$.grid.items.push(model);
+              that.$.grid.clearCache();
+              that.set('updateModel', undefined);
+              that._closeModal();
+            }).catch(function (error) {
+
+            });
+        }
+      },
+
+      _delete: function (e) {
+        var that = this;
+        if (this.dataProvider && this.dataProvider.destroy && typeof this.dataProvider.destroy === typeof function () { }) {
+          this.dataProvider.destroy(JSON.parse(JSON.stringify(this.updateModel)))
+            .then(function (model) {
+              var items = that.$.grid.items;
+              that.$.grid.set('items', (items || []).filter(function (i) {
+                return i[that.idField] !== model[that.idField];
+              }));
+              that.$.grid.clearCache();
+              that.set('updateModel', undefined);
+              that._closeModal();
+            }).catch(function (error) {
+
+            });
+        }
+      },
+
+      _getButtons: function () {
+        var buttons = [];
+
+        if (this.allowDelete) {
+          buttons.push({ title: 'Delete', action: 'delete' });
+        }
+
+        if (this.allowAddNew || this.allowEdit) {
+          buttons.push({ title: 'Save', action: 'save' })
+        }
+
+        return buttons;
       }
     });
   </script>
