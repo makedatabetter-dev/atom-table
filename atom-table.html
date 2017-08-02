@@ -144,7 +144,7 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
-    <atom-modal-dialog id="modal" modal-title="Add New" buttons="[[_getButtons(allowEdit,allowDelete)]]">
+    <atom-modal-dialog id="modal" modal-title="Add New" buttons="[[_getButtons(allowEdit,allowDelete,_isEdit)]]">
       <form action="">
         <content select=".addnew"></content>
       </form>
@@ -288,6 +288,8 @@ Custom property | Description | Default
 
       _addItem: function (e) {
         this.set('updateModel', {});
+        this._isEdit = false;
+
         this._showModal();
       },
 
@@ -344,7 +346,7 @@ Custom property | Description | Default
       _getButtons: function () {
         var buttons = [];
 
-        if (this.allowDelete) {
+        if (this.allowDelete && this._isEdit) { 
           buttons.push({ title: 'Delete', action: 'delete' });
         }
 
