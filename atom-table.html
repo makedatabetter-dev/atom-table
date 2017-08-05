@@ -46,9 +46,18 @@ Custom property | Description | Default
         }
       }
 
+       :host[allow-paging] {
+        overflow: auto;
+      }
+
        :host vaadin-grid {
         max-height: 400px;
         @apply(--atom-table);
+      }
+
+       :host[allow-paging] vaadin-grid {
+        max-height: none;
+        height: initial;
       }
 
        :host .actions {
@@ -187,15 +196,18 @@ Custom property | Description | Default
         },
         allowAddNew: {
           type: Boolean,
-          value: false
+          value: false,
+          reflectToAttribute: true
         },
         allowEdit: {
           type: Boolean,
-          value: false
+          value: false,
+          reflectToAttribute: true
         },
         allowDelete: {
           type: Boolean,
-          value: false
+          value: false,
+          reflectToAttribute: true
         },
         updateModel: {
           type: Object,
@@ -204,7 +216,8 @@ Custom property | Description | Default
         },
         allowGlobalSearch: {
           type: Boolean,
-          value: false
+          value: false,
+          reflectToAttribute: true
         },
         columns: {
           type: Array,
@@ -330,7 +343,7 @@ Custom property | Description | Default
 
       _delete: function (e) {
         var that = this;
-        if (this.dataProvider && this.dataProvider.destroy && typeof this.dataProvider.destroy === typeof function () { }) {
+        if (this.allowDelete && this.dataProvider && this.dataProvider.destroy && typeof this.dataProvider.destroy === typeof function () { }) {
           this.dataProvider.destroy(JSON.parse(JSON.stringify(this.updateModel)))
             .then(function (model) {
               var items = that.$.grid.items;
@@ -362,6 +375,5 @@ Custom property | Description | Default
         return this._isEdit && this.allowDelete ? true : false;
       }
     });
-    
   </script>
 </dom-module>
