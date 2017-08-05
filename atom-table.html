@@ -31,7 +31,7 @@ Custom property | Description | Default
   <template>
     <style>
        :host {
-        display: block;        
+        display: block;
         --vaadin-grid-cell: {
           @apply(--atom-table-cell);
         }
@@ -143,10 +143,9 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
-    <atom-modal-dialog id="modal" modal-title="Add New" buttons="[[_getButtons(allowEdit,allowDelete,_isEdit)]]">
-      <form action="">
-        <content select=".addnew"></content>
-      </form>
+    <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="Delete"
+      primary-action-allowed="[[allowAddNew]]" primary-action-label="Save">
+      <content select=".addnew"></content>
     </atom-modal-dialog>
   </template>
 
@@ -181,6 +180,10 @@ Custom property | Description | Default
           type: Number,
           value: 1,
           observer: '_pageNumChanged'
+        },
+        entityType: {
+          type: String,
+          observer: '_entityTypeChanged'
         },
         allowAddNew: {
           type: Boolean,
@@ -225,13 +228,14 @@ Custom property | Description | Default
         },
         _isEdit: {
           type: Boolean,
-          value: false
+          value: false,
+          observer: '_isEditChanged'
         }
       },
 
       listeners: {
-        'save': '_save',
-        'delete': '_delete'
+        'modal.primary': '_save',
+        'modal.secondary': '_delete'
       },
 
       _itemsChanged: function () {
@@ -342,18 +346,20 @@ Custom property | Description | Default
         }
       },
 
-      _getButtons: function () {
-        var buttons = [];
+      _isEditChanged: function () {
+        this._updateModalTitle();
+      },
 
-        if (this.allowDelete && this._isEdit) { 
-          buttons.push({ title: 'Delete', action: 'delete' });
-        }
+      _entityTypeChanged: function () {
+        this._updateModalTitle();
+      },
 
-        if (this.allowAddNew || this.allowEdit) {
-          buttons.push({ title: 'Save', action: 'save' })
-        }
+      _updateModalTitle: function () {
+        this.$.modal.modalTitle = (this._isEdit ? 'Edit' : 'Add new') + ' ' + (this.entityType || '')
+      },
 
-        return buttons;
+      _allowDelete: function (allowdelete, isedit) {
+        return this._isEdit && this.allowDelete ? true : false;
       }
     });
   </script>
