@@ -331,7 +331,7 @@ Custom property | Description | Default
         if (this.dataProvider && this.dataProvider.save && typeof this.dataProvider.save === typeof function () { }) {
           this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
             .then(function (model) {
-              that.$.grid.items.push(model);
+              if (!that._isEdit) that.$.grid.items.push(model);
               that.$.grid.clearCache();
               that.set('updateModel', undefined);
               that._closeModal();
