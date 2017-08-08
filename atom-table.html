@@ -332,7 +332,16 @@ Custom property | Description | Default
         if (this.dataProvider && this.dataProvider.save && typeof this.dataProvider.save === typeof function () { }) {
           this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
             .then(function (model) {
-              if (!that._isEdit) that.$.grid.items.push(model);
+              if (!that._isEdit) {
+                that.$.grid.items.push(model);
+              } else {
+                var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
+                if (item) {
+                  for (var i in item) {
+                    item[i] = model[i];
+                  }
+                }
+              }
               that.$.grid.clearCache();
               that._closeModal();
             }).catch(function (error) {
