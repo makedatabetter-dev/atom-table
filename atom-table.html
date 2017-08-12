@@ -145,7 +145,7 @@ Custom property | Description | Default
           <option>20</option>
           <option>50</option>
         </select>
-        <span class="pageNum">[[_getStart(items,pageNum,pageSize)]]-[[_getEnd(items,pageNum,pageSize)]] of [[_getTotalRecordsCount(items)]]</span>
+        <span class="pageNum">[[_getStart(items,pageNum,pageSize)]]-[[_getEnd(items,pageNum,pageSize)]] of [[_getTotalRecordsCount(items.splices)]]</span>
         <div class="pagingButtons">
           <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
           <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
@@ -299,7 +299,7 @@ Custom property | Description | Default
         return end <= this.items.length ? end : this.items.length;
       },
 
-      _getTotalRecordsCount: function () {
+      _getTotalRecordsCount: function (items) {
         return this.items.length;
       },
 
@@ -334,7 +334,7 @@ Custom property | Description | Default
           this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
             .then(function (model) {
               if (!that._isEdit) {
-                that.$.grid.items.push(model);
+                that.push('items', model);
               } else {
                 var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
                 if (item) {
