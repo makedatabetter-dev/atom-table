@@ -253,6 +253,7 @@ Custom property | Description | Default
 
       _itemsChanged: function () {
         this._setCurrentPageItems();
+        this.$.grid.clearCache();
       },
 
       _pageSizeChanged: function () {
