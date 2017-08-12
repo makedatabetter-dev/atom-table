@@ -153,7 +153,7 @@ Custom property | Description | Default
       </template>
     </div>
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="Delete"
-      primary-action-allowed="[[allowAddNew]]" primary-action-label="Save">
+      primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="Save">
       <content select=".addnew"></content>
     </atom-modal-dialog>
   </template>
@@ -378,6 +378,10 @@ Custom property | Description | Default
 
       _updateModalTitle: function () {
         this.$.modal.modalTitle = (this._isEdit ? 'Edit' : 'Add new') + ' ' + (this.entityType || '')
+      },
+
+      _allowSave: function () {
+        return this.allowAddNew || this.allowEdit;
       },
 
       _allowDelete: function (allowdelete, isedit) {
