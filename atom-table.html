@@ -44,8 +44,7 @@ Custom property | Description | Default
         }
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
-        }
-        @apply(--paper-font-common-base);
+        }        
       }
 
        :host[allow-paging] {
@@ -54,6 +53,7 @@ Custom property | Description | Default
 
        :host vaadin-grid {
         max-height: 400px;
+        @apply(--paper-font-common-base);
         @apply(--atom-table);
       }
 
