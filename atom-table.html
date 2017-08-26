@@ -325,7 +325,7 @@ Custom property | Description | Default
           this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
             .then(function (model) {
               if (!that._isEdit) {
-                that.push('items', model);
+                that.unshift('items', model);
               } else {
                 var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
                 if (item) {
