@@ -44,7 +44,7 @@ Custom property | Description | Default
         }
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
-        }        
+        }
       }
 
        :host[allow-paging] {
@@ -96,7 +96,6 @@ Custom property | Description | Default
         height: 100px;
         border-bottom: 1px solid #e1e6ed;
         position: relative;
-        /*border-top: 0;*/
       }
 
        :host .empty-message p {
@@ -123,7 +122,7 @@ Custom property | Description | Default
       </template>
     </div>
     <div class="grid">
-      <vaadin-grid id="grid" items="{{currentPageItems}}" active-item="{{activeItem}}">
+      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}">
         <content select="vaadin-grid-column"></content>
         <template is="dom-if" if="[[allowEdit]]">
           <vaadin-grid-column>
@@ -133,7 +132,7 @@ Custom property | Description | Default
           </vaadin-grid-column>
         </template>
       </vaadin-grid>
-      <template is="dom-if" if="[[!items.length]]">
+      <template is="dom-if" if="[[!totalRecords]]">
         <div class="empty-message">
           <p>[[emptyMessage]]</p>
         </div>
@@ -147,7 +146,7 @@ Custom property | Description | Default
           <option>20</option>
           <option>50</option>
         </select>
-        <span class="pageNum">[[_getStart(items,pageNum,pageSize)]]-[[_getEnd(items,pageNum,pageSize)]] of [[_getTotalRecordsCount(items.splices)]]</span>
+        <span class="pageNum">[[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of [[totalRecords]]</span>
         <div class="pagingButtons">
           <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
           <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
@@ -167,8 +166,7 @@ Custom property | Description | Default
 
       properties: {
         dataProvider: {
-          type: Object,
-          observer: '_dataProviderChanged'
+          type: Object
         },
         idField: {
           type: String,
@@ -184,13 +182,16 @@ Custom property | Description | Default
         },
         pageSize: {
           type: Number,
-          value: 10,
-          observer: '_pageSizeChanged'
+          value: 10
         },
         pageNum: {
           type: Number,
-          value: 1,
-          observer: '_pageNumChanged'
+          value: 1
+        },
+        totalRecords: {
+          type: Number,
+          value: 0,
+          readOnly: true
         },
         entityType: {
           type: String,
@@ -230,10 +231,6 @@ Custom property | Description | Default
           value: [],
           observer: '_itemsChanged'
         },
-        currentPageItems: {
-          type: Array,
-          value: []
-        },
         activeItem: {
           notify: true
         },
@@ -248,36 +245,17 @@ Custom property | Description | Default
         }
       },
 
+      observers: [
+        '_fetchItems(dataProvider,pageSize,pageNum)'
+      ],
+
       listeners: {
         'modal.primary': '_save',
         'modal.secondary': '_delete'
       },
 
       _itemsChanged: function () {
-        this._setCurrentPageItems();
         this.$.grid.clearCache();
-      },
-
-      _pageSizeChanged: function () {
-        this._setCurrentPageItems();
-      },
-
-      _pageNumChanged: function () {
-        this._setCurrentPageItems();
-      },
-
-      _dataProviderChanged: function () {
-
-      },
-
-      _setCurrentPageItems: function () {
-        if (this.items && this.items.length) {
-          if (this.allowPaging) {
-            this.currentPageItems = this.items.slice(this._getStart() - 1, this._getEnd());
-          } else {
-            this.currentPageItems = this.items.slice();
-          }
-        }
       },
 
       _prevPage: function () {
@@ -287,7 +265,7 @@ Custom property | Description | Default
       },
 
       _nextPage: function () {
-        if (this._getEnd() < this._getTotalRecordsCount()) {
+        if (this._getEnd() < this.totalRecords) {
           this.pageNum = this.pageNum + 1;
         }
       },
@@ -298,11 +276,7 @@ Custom property | Description | Default
 
       _getEnd: function (items, pageNum, pageSize) {
         var end = (parseInt(pageNum) || this.pageNum) * (parseInt(pageSize) || this.pageSize);
-        return end <= this.items.length ? end : this.items.length;
-      },
-
-      _getTotalRecordsCount: function (items) {
-        return this.items.length;
+        return end <= this.totalRecords ? end : this.totalRecords;
       },
 
       _addItem: function (e) {
@@ -328,6 +302,21 @@ Custom property | Description | Default
         var modal = this.querySelector('atom-modal-dialog');
         this.set('updateModel', undefined);
         if (modal) modal.close();
+      },
+
+      _fetchItems: function () {
+        var that = this;
+        if (this.dataProvider && this.dataProvider.fetchAll && typeof this.dataProvider.fetchAll === typeof function () { }) {
+          this.dataProvider.fetchAll({
+            pnum: this.pageNum,
+            psize: this.pageSize
+          }).then(function (response) {
+            that.set('items', response.results);
+            that._setTotalRecords(response.pagingInfo.total)
+          }).catch(function (error) {
+
+          });
+        }
       },
 
       _save: function (e) {
