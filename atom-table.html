@@ -135,7 +135,7 @@ Custom property | Description | Default
           </vaadin-grid-column>
         </template>
       </vaadin-grid>
-      <template is="dom-if" if="[[!totalRecords]]">
+      <template is="dom-if" if="[[!_recordsExist(items)]]">
         <div class="empty-message">
           <p>[[emptyMessage]]</p>
         </div>
@@ -382,6 +382,10 @@ Custom property | Description | Default
 
       _allowDelete: function (allowdelete, isedit) {
         return this._isEdit && this.allowDelete ? true : false;
+      },
+
+      _recordsExist: function () {
+        return !!(this.items || []).length;
       }
     });
   </script>
