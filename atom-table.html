@@ -38,9 +38,12 @@ Custom property | Description | Default
         }
         --vaadin-grid-header-cell: {
           @apply(--atom-table-header-cell);
+          white-space: normal;
         }
         --vaadin-grid-body-cell: {
           @apply(--atom-table-body-cell);
+          flex-direction: column;
+          justify-content: center;
         }
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
@@ -324,18 +327,19 @@ Custom property | Description | Default
         if (this.dataProvider && this.dataProvider.save && typeof this.dataProvider.save === typeof function () { }) {
           this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
             .then(function (model) {
-              if (!that._isEdit) {
-                that.unshift('items', model);
-              } else {
-                var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
-                if (item) {
-                  for (var i in item) {
-                    item[i] = model[i];
-                  }
-                }
-              }
-              that.$.grid.clearCache();
+              // if (!that._isEdit) {
+              //   that.unshift('items', model);
+              // } else {
+              //   var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
+              //   if (item) {
+              //     for (var i in item) {
+              //       item[i] = model[i];
+              //     }
+              //   }
+              // }
+              // that.$.grid.clearCache();
               that._closeModal();
+              that._fetchItems();
             }).catch(function (error) {
 
             });
@@ -347,12 +351,13 @@ Custom property | Description | Default
         if (this.allowDelete && this.dataProvider && this.dataProvider.destroy && typeof this.dataProvider.destroy === typeof function () { }) {
           this.dataProvider.destroy(JSON.parse(JSON.stringify(this.updateModel)))
             .then(function (model) {
-              var items = that.$.grid.items;
-              that.$.grid.set('items', (items || []).filter(function (i) {
-                return i[that.idField] !== model[that.idField];
-              }));
-              that.$.grid.clearCache();
+              // var items = that.$.grid.items;
+              // that.$.grid.set('items', (items || []).filter(function (i) {
+              //   return i[that.idField] !== model[that.idField];
+              // }));
+              // that.$.grid.clearCache();
               that._closeModal();
+              that._fetchItems();
             }).catch(function (error) {
 
             });
