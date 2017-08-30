@@ -60,6 +60,10 @@ Custom property | Description | Default
         @apply(--atom-table);
       }
 
+       :host vaadin-grid.empty {
+        height: initial;
+      }
+
        :host[allow-paging] vaadin-grid {
         max-height: none;
         height: initial;
@@ -125,7 +129,7 @@ Custom property | Description | Default
       </template>
     </div>
     <div class="grid">
-      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}">
+      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
         <content select="vaadin-grid-column"></content>
         <template is="dom-if" if="[[allowEdit]]">
           <vaadin-grid-column>
@@ -386,6 +390,10 @@ Custom property | Description | Default
 
       _recordsExist: function () {
         return !!(this.items || []).length;
+      },
+
+      _isEmpty: function () {
+        return !this.items.length ? 'empty' : '';
       }
     });
   </script>
