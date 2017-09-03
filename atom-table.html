@@ -393,7 +393,7 @@ Custom property | Description | Default
       },
 
       _isEmpty: function () {
-        return !this.items.length ? 'empty' : '';
+        return !(this.items || []).length ? 'empty' : '';
       }
     });
   </script>
