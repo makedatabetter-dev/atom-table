@@ -16,6 +16,7 @@
   <style is="custom-style" include="demo-pages-shared-styles">
 
   </style>
+
 </head>
 
 <body>
@@ -23,7 +24,8 @@
     <h3>Basic atom-table demo</h3>
     <demo-snippet>
       <template>
-        <atom-table allow-global-search allow-add-new allow-paging items='[{"concept":"FICO-Score","mappingCount":"5","health":"50%","coverage":".001%","owner":"Angela","impactArea":["GDPR","Credit Risk"],"applications":["Credit Risk Assessment","Sales Account Management","Sales Campaign Management","Enterprise Data Warehouse"]}]'>
+        <atom-table allow-global-search allow-add-new allow-paging 
+          items='[{"concept":"FICO-Score","mappingCount":"5","health":"50%","coverage":".001%","owner":"Angela","impactArea":["GDPR","Credit Risk"],"applications":["Credit Risk Assessment","Sales Account Management","Sales Campaign Management","Enterprise Data Warehouse"]}]'>
           <vaadin-grid-column>
             <template class="header">
               Concept Name
@@ -86,6 +88,31 @@
       </template>
     </demo-snippet>
   </div>
+
+<script>
+
+  window.addEventListener('WebComponentsReady', function(){
+    var table = document.querySelector('atom-table');
+    table.allowColumnPaging = true;
+    var items = [];
+    for(var i=0; i<15; i++){
+      var item = {
+        concept : "Concept " + (i + 1),
+        mappingCount : "MappingCount " + (i + 1),
+        health : "Health Count " + (i + 1),
+        coverage : "Coverage " + (i + 1),
+        owner : 'Owner ' + (i + 1),
+        impactArea : 'ImpactArea ' + (i + 1),
+        applications : ["Application " + (i + 1)]
+      }
+      items.push(item);
+    }
+
+    table.items = items;
+  });
+
+</script>
+
 </body>
 
 </html>
