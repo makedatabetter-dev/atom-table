@@ -140,7 +140,7 @@ Custom property | Description | Default
           <option>7</option>
           <option>10</option>
         </select>
-        <span class="columnPageNum">[[_getStart(columnPageNum,columnPageSize)]]-[[_getEnd(columnPageNum,columnPageSize,columns.length)]] of [[columns.length]]</span>
+        <span class="columnPageNum">[[_getStart(columnPageNum,columnPageSize, columns.length)]]-[[_getEnd(columnPageNum,columnPageSize,columns.length)]] of [[columns.length]]</span>
         <div class="pagingButtons">
           <paper-icon-button id="prevColumnPage" icon="icons:chevron-left" on-tap="_prevColumnPage"></paper-icon-button>
           <paper-icon-button id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
@@ -172,7 +172,7 @@ Custom property | Description | Default
           <option>20</option>
           <option>50</option>
         </select>
-        <span class="pageNum">[[_getStart(pageNum,pageSize)]]-[[_getEnd(pageNum,pageSize,totalRecords)]] of [[totalRecords]]</span>
+        <span class="pageNum">[[_getStart(pageNum,pageSize, totalRecords)]]-[[_getEnd(pageNum,pageSize,totalRecords)]] of [[totalRecords]]</span>
         <div class="pagingButtons">
           <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
           <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
@@ -317,17 +317,31 @@ Custom property | Description | Default
       },
 
       ready : function(value){
-        var staticColumnTemplateDoms = this.$.staticColumnTemplates.children;
-        var columnTemplateMap = {};
-        for(var i=0; i<staticColumnTemplateDoms.length; i++){
-          var gridColumn = this._createColumnFromTemplateDom(staticColumnTemplateDoms[i]);
+        var that = this;
+        Polymer.dom(this.$.staticColumnTemplates).observeNodes(function(info) {
+          if((info.addedNodes || []).length == 0)  return;
 
-          Polymer.dom(this.$.grid).appendChild(gridColumn);
-          var columnName = "Column-" + i;
-          columnTemplateMap[columnName] = gridColumn;
-        }
+          var staticColumnTemplateDoms = that.$.staticColumnTemplates.children;
+          var columnTemplateMap = {};
+          var columnIndex = 0;
+          for(var i=0; i<staticColumnTemplateDoms.length; i++){
+            if(staticColumnTemplateDoms[i].nodeName.toLowerCase() != "vaadin-grid-column")
+              continue;
+            var columnName = "Column-" + columnIndex;
+            columnTemplateMap[columnName] = staticColumnTemplateDoms[i];
+            columnIndex += 1;
+          }
 
-        this.columnTemplateMap = columnTemplateMap;
+          Object.keys(columnTemplateMap).sort().forEach(function(key){
+            var gridColumn = columnTemplateMap[key];
+
+            Polymer.dom(that.$.grid).appendChild(gridColumn);
+          });
+
+          setTimeout(function(){
+            that.columnTemplateMap = columnTemplateMap;
+          });
+        });
       },
 
       _columnTemplateMapChanged : function(columnTemplateMap){
@@ -337,9 +351,21 @@ Custom property | Description | Default
       },
 
       _updateDisplayedColumns : function(allowColumnPaging, columns, columnPageNum, columnPageSize){
-        this._clearGridColumns();
+        if(!this.allowColumnPaging)
+          return;
         
-        var start = this._getStart(columnPageNum, columnPageSize);
+        this._clearGridColumns();
+        columns = columns || [];
+        if(columns.length == 0)
+          return;
+
+        var columnPageModified = false;
+        if(columnPageNum * columnPageSize > columns.length){
+          columnPageNum = Math.ceil(columns.length / columnPageSize);
+          columnPageModified = true;
+        }
+
+        var start = this._getStart(columnPageNum, columnPageSize, columns.length);
         var end = this._getEnd(columnPageNum, columnPageSize, columns.length);
 
         var that = this;
@@ -349,38 +375,10 @@ Custom property | Description | Default
           Polymer.dom(that.$.grid).appendChild(gridColumn);
         });
 
+        if(columnPageModified)
+          this.columnPageNum = columnPageNum;
+
         this.pageNum = 1;
-      },
-
-      _createColumnFromTemplateDom : function(templateDom){
-        var gridColumn = document.createElement('vaadin-grid-column');
-
-        var headerTemplate = templateDom.querySelector('template[class="header"]');
-        if(headerTemplate)
-          gridColumn.headerTemplate = headerTemplate;
-        
-        var footerTemplate = templateDom.querySelector('template[class="footer"]');
-        if(footerTemplate)
-          gridColumn.footerTemplate = footerTemplate;
-
-        var allTemplateElements = templateDom.querySelectorAll('template');
-        var bodyTemplate = null;
-        for (var i = 0; i < allTemplateElements.length; i++) {
-          if(allTemplateElements[i].attributes.length == 0){
-            bodyTemplate = allTemplateElements[i];
-            break;
-          }
-        }
-        if(bodyTemplate)
-          gridColumn.template = bodyTemplate;
-
-        return gridColumn;
-      },
-
-      _createElementFromString : function(elementString){
-        	var container = document.createElement('div');
-          container.innerHTML = elementString;
-          return container.firstChild;
       },
 
       _clearGridColumns : function(){        
@@ -408,10 +406,27 @@ Custom property | Description | Default
       },
 
       _itemsChanged : function(items, pageSize, pageNum){
-        var start = this._getStart(pageNum, pageSize);
-        var end = this._getEnd(pageNum, pageSize, (items || []).length);
+        items = items || [];
+        
+        this._setTotalRecords(items.length);
+
+        if(items.length == 0){
+          this.currentItems = [];
+          return;  
+        }
+
+        var pageModified = false;
+        if(pageNum * pageSize > items.length){
+          pageNum = Math.ceil(items.length / pageSize);
+          pageModified = true;
+        }
+        
+        var start = this._getStart(pageNum, pageSize, items.length);
+        var end = this._getEnd(pageNum, pageSize, items.length);
         this.currentItems = items.slice(start - 1, end);
-        this._setTotalRecords((items || []).length);
+
+        if(pageModified)
+          this.pageNum = pageNum;
       },
 
       _prevPage: function () {
@@ -438,7 +453,7 @@ Custom property | Description | Default
         }
       },
 
-      _getStart: function (pageNum, pageSize) {
+      _getStart: function (pageNum, pageSize, totalItems) {
         return ((parseInt(pageNum) || 1) - 1) * (parseInt(pageSize) || 5) + 1;
       },
 
