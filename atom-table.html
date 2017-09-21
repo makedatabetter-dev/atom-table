@@ -66,7 +66,7 @@ Custom property | Description | Default
 
        :host[allow-paging] vaadin-grid {
         max-height: none;
-        height: initial;
+                /*height: initial;*/
       }
 
        :host .actions {
@@ -163,6 +163,7 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
+        <template is="dom-if" if="[[_recordsExist(items)]]">
     <div class="paging">
       <template is="dom-if" if="{{allowPaging}}">
         <span>Rows per page</span>
@@ -178,6 +179,7 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
+        </template>
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="Delete"
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="Save">
       <content select=".addnew"></content>
@@ -192,6 +194,10 @@ Custom property | Description | Default
       properties: {
         dataProvider: {
           type: Object
+        },
+        transformTable: {
+          type: Boolean,
+          observer: '_transformTable'
         },
         idField: {
           type: String,
@@ -387,6 +393,18 @@ Custom property | Description | Default
 
       _currentItemsChanged: function () {
         this.$.grid.clearCache();
+      },
+
+      _transformTable: function () {
+        var tBody = this.$.grid.querySelector('tbody');
+        if (tBody) {
+          var trItems = tBody.querySelectorAll('tr');
+          if (trItems && trItems.length > 0) {
+            trItems.forEach(function (item, index) {
+              item.style.transform = "translate(0px, " + (index) * 49 + "px)";
+            });
+          }
+        }
       },
 
       _itemsChanged : function(items, pageSize, pageNum){
