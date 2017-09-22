@@ -335,8 +335,10 @@ Custom property | Description | Default
           Object.keys(columnTemplateMap).sort().forEach(function (key) {
             var gridColumn = columnTemplateMap[key];
 
-            if (!that.allowEdit) Polymer.dom(that.$.grid).appendChild(gridColumn);
-            else Polymer.dom(that.$.grid).insertBefore(gridColumn, that.querySelector('#editColumn'));
+            if (!that.allowEdit)
+              Polymer.dom(that.$.grid).appendChild(gridColumn);
+            else
+              Polymer.dom(that.$.grid).insertBefore(gridColumn, that.querySelector('#editColumn'));
           });
 
           setTimeout(function () {
