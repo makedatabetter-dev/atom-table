@@ -24,7 +24,7 @@
     <h3>Basic atom-table demo</h3>
     <demo-snippet>
       <template>
-        <atom-table allow-global-search allow-add-new allow-paging 
+        <atom-table allow-global-search allow-add-new allow-paging
           items='[{"concept":"FICO-Score","mappingCount":"5","health":"50%","coverage":".001%","owner":"Angela","impactArea":["GDPR","Credit Risk"],"applications":["Credit Risk Assessment","Sales Account Management","Sales Campaign Management","Enterprise Data Warehouse"]}]'>
           <vaadin-grid-column>
             <template class="header">
@@ -108,6 +108,7 @@
       items.push(item);
     }
 
+    table.allowEdit = true;
     table.items = items;
   });
 
