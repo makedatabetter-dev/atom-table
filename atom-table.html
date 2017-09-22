@@ -131,6 +131,11 @@ Custom property | Description | Default
     <div id="staticColumnTemplates">
       <content select="vaadin-grid-column"></content>
     </div>
+    <vaadin-grid-column id='editColumn'>
+      <template>
+        <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0;" on-tap="_editItem"></paper-icon-button>
+      </template>
+    </vaadin-grid-column>
     <div class="columnPaging">
       <template is="dom-if" if="{{allowColumnPaging}}">
         <span>Columns per page</span>
@@ -149,13 +154,6 @@ Custom property | Description | Default
     </div>
     <div class="grid">
       <vaadin-grid id="grid" items="[[currentItems]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
-        <template is="dom-if" if="[[allowEdit]]">
-          <vaadin-grid-column id="editColumn">
-            <template>
-              <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0;" on-tap="_editItem"></paper-icon-button>
-            </template>
-          </vaadin-grid-column>
-        </template>
       </vaadin-grid>
       <template is="dom-if" if="[[!_recordsExist(items)]]">
         <div class="empty-message">
@@ -261,7 +259,8 @@ Custom property | Description | Default
         allowEdit: {
           type: Boolean,
           value: false,
-          reflectToAttribute: true
+          reflectToAttribute: true,
+          observer : '_allowEditChanged'
         },
         allowDelete: {
           type: Boolean,
@@ -316,8 +315,56 @@ Custom property | Description | Default
         'modal.secondary': '_delete'
       },
 
+      _createEditColumn : function(){
+        if(this._editColumn)
+          return this._editColumn;
+        this._editColumn =  this.querySelector('#editColumn');
+        return this._editColumn;
+      },
+
+      _getEditColumnFromGrid : function(){
+        return Polymer.dom(this.$.grid).querySelector('#editColumn');
+      },
+
+      _removeEditColumnIfPresent : function(){
+        var existing = this._getEditColumnFromGrid();
+        if(existing)
+          Polymer.dom(this.$.grid).removeChild(existing);
+      },
+
+      _addEditColumnIfAbsent : function(){
+        if(this._getAllGridColumns().length == 0)
+          return;
+
+        var existing = this._getEditColumnFromGrid();
+        if(!existing)
+          Polymer.dom(this.$.grid).appendChild(this._createEditColumn());
+      },
+
+      _allowEditChanged : function(value){
+        if(value == true)
+          this._addEditColumnIfAbsent();
+        else
+          this._removeEditColumnIfPresent();
+      },
+
+      _addColumnsToGrid(columns){
+        columns = columns || [];
+        var gridDom = Polymer.dom(this.$.grid);
+        (columns || []).forEach(function(column){
+          gridDom.appendChild(column);
+        });
+        
+        if(this.allowEdit){
+          var existingEditColumn = this._getEditColumnFromGrid();
+          if(!existingEditColumn)
+            gridDom.appendChild(this._createEditColumn());
+        }
+      },
+
       ready: function (value) {
         var that = this;
+        
         Polymer.dom(this.$.staticColumnTemplates).observeNodes(function (info) {
           if ((info.addedNodes || []).length == 0) return;
 
@@ -332,14 +379,10 @@ Custom property | Description | Default
             columnIndex += 1;
           }
 
-          Object.keys(columnTemplateMap).sort().forEach(function (key) {
-            var gridColumn = columnTemplateMap[key];
-
-            if (!that.allowEdit)
-              Polymer.dom(that.$.grid).appendChild(gridColumn);
-            else
-              Polymer.dom(that.$.grid).insertBefore(gridColumn, that.querySelector('#editColumn'));
+          var columnsToAdd = Object.keys(columnTemplateMap).sort().map(function(key){
+            return columnTemplateMap[key];
           });
+          that._addColumnsToGrid(columnsToAdd);
 
           setTimeout(function () {
             that.columnTemplateMap = columnTemplateMap;
@@ -357,39 +400,47 @@ Custom property | Description | Default
         if (!this.allowColumnPaging)
           return;
 
-        this._clearGridColumns();
-        columns = columns || [];
-        if (columns.length == 0)
-          return;
+        setTimeout(function(){
+          this._clearGridColumns();
+          columns = columns || [];
+          if (columns.length == 0)
+            return;
 
-        var columnPageModified = false;
-        if (columnPageNum * columnPageSize > columns.length) {
-          columnPageNum = Math.ceil(columns.length / columnPageSize);
-          columnPageModified = true;
-        }
+          var columnPageModified = false;
+          if (columnPageNum * columnPageSize > columns.length) {
+            columnPageNum = Math.ceil(columns.length / columnPageSize);
+            columnPageModified = true;
+          }
 
-        var start = this._getStart(columnPageNum, columnPageSize, columns.length);
-        var end = this._getEnd(columnPageNum, columnPageSize, columns.length);
+          var start = this._getStart(columnPageNum, columnPageSize, columns.length);
+          var end = this._getEnd(columnPageNum, columnPageSize, columns.length);
 
-        var that = this;
-        (columns || []).slice(start - 1, end).forEach(function (column) {
-          var gridColumn = that.columnTemplateMap[column];
+          var that = this;
+          var columnsToAdd = (columns || []).slice(start - 1, end).map(function (column) {
+            return that.columnTemplateMap[column];
+          });
 
-          Polymer.dom(that.$.grid).appendChild(gridColumn);
-        });
+          setTimeout(function(){
+            this._addColumnsToGrid(columnsToAdd);
+          }.bind(this));
 
-        if (columnPageModified)
-          this.columnPageNum = columnPageNum;
+          if (columnPageModified)
+            this.columnPageNum = columnPageNum;
 
-        this.pageNum = 1;
+          this.pageNum = 1;
+        }.bind(this));
+      },
+
+      _getAllGridColumns : function(){
+        return this.$.grid.querySelectorAll('vaadin-grid-column');
       },
 
       _clearGridColumns: function () {
-        var gridColumns = this.$.grid.querySelectorAll('vaadin-grid-column');
-        var that = this;
+        var gridColumns = this._getAllGridColumns();
+        var gridDom = Polymer.dom(this.$.grid);
         gridColumns.forEach(function (gridColumn) {
-          Polymer.dom(that.$.grid).removeChild(gridColumn);
-        })
+          gridDom.removeChild(gridColumn);
+        });
       },
 
       _currentItemsChanged: function () {
