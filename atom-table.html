@@ -66,7 +66,7 @@ Custom property | Description | Default
 
        :host[allow-paging] vaadin-grid {
         max-height: none;
-                /*height: initial;*/
+        /*height: initial;*/
       }
 
        :host .actions {
@@ -150,7 +150,7 @@ Custom property | Description | Default
     <div class="grid">
       <vaadin-grid id="grid" items="[[currentItems]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
         <template is="dom-if" if="[[allowEdit]]">
-          <vaadin-grid-column>
+          <vaadin-grid-column id="editColumn">
             <template>
               <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0;" on-tap="_editItem"></paper-icon-button>
             </template>
@@ -163,23 +163,23 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
-        <template is="dom-if" if="[[_recordsExist(items)]]">
-    <div class="paging">
-      <template is="dom-if" if="{{allowPaging}}">
-        <span>Rows per page</span>
-        <select id="pageSize" class="pageSize" value="{{pageSize::change}}">
+    <template is="dom-if" if="[[_recordsExist(items)]]">
+      <div class="paging">
+        <template is="dom-if" if="{{allowPaging}}">
+          <span>Rows per page</span>
+          <select id="pageSize" class="pageSize" value="{{pageSize::change}}">
           <option>10</option>
           <option>20</option>
           <option>50</option>
         </select>
-        <span class="pageNum">[[_getStart(pageNum,pageSize, totalRecords)]]-[[_getEnd(pageNum,pageSize,totalRecords)]] of [[totalRecords]]</span>
-        <div class="pagingButtons">
-          <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
-          <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
-        </div>
-      </template>
-    </div>
+          <span class="pageNum">[[_getStart(pageNum,pageSize, totalRecords)]]-[[_getEnd(pageNum,pageSize,totalRecords)]] of [[totalRecords]]</span>
+          <div class="pagingButtons">
+            <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
+            <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
+          </div>
         </template>
+      </div>
+    </template>
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="Delete"
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="Save">
       <content select=".addnew"></content>
@@ -212,28 +212,28 @@ Custom property | Description | Default
           value: false
         },
 
-        allowColumnPaging : {
+        allowColumnPaging: {
           type: Boolean,
           value: false,
           reflectToAttribute: true
         },
-        
-        columnTemplateMap : {
-          type : Object,
-          value : {},
-          observer : '_columnTemplateMapChanged'
+
+        columnTemplateMap: {
+          type: Object,
+          value: {},
+          observer: '_columnTemplateMapChanged'
         },
 
         pageSize: {
           type: Number,
           value: 10
         },
-        
+
         columnPageSize: {
           type: Number,
           value: 3
         },
-        
+
         pageNum: {
           type: Number,
           value: 1
@@ -286,9 +286,9 @@ Custom property | Description | Default
           type: Array,
           value: []
         },
-        currentItems : {
-          type : Array,
-          value : [],
+        currentItems: {
+          type: Array,
+          value: [],
           observer: '_currentItemsChanged'
         },
         activeItem: {
@@ -316,51 +316,52 @@ Custom property | Description | Default
         'modal.secondary': '_delete'
       },
 
-      ready : function(value){
+      ready: function (value) {
         var that = this;
-        Polymer.dom(this.$.staticColumnTemplates).observeNodes(function(info) {
-          if((info.addedNodes || []).length == 0)  return;
+        Polymer.dom(this.$.staticColumnTemplates).observeNodes(function (info) {
+          if ((info.addedNodes || []).length == 0) return;
 
           var staticColumnTemplateDoms = that.$.staticColumnTemplates.children;
           var columnTemplateMap = {};
           var columnIndex = 0;
-          for(var i=0; i<staticColumnTemplateDoms.length; i++){
-            if(staticColumnTemplateDoms[i].nodeName.toLowerCase() != "vaadin-grid-column")
+          for (var i = 0; i < staticColumnTemplateDoms.length; i++) {
+            if (staticColumnTemplateDoms[i].nodeName.toLowerCase() != "vaadin-grid-column")
               continue;
             var columnName = "Column-" + columnIndex;
             columnTemplateMap[columnName] = staticColumnTemplateDoms[i];
             columnIndex += 1;
           }
 
-          Object.keys(columnTemplateMap).sort().forEach(function(key){
+          Object.keys(columnTemplateMap).sort().forEach(function (key) {
             var gridColumn = columnTemplateMap[key];
 
-            Polymer.dom(that.$.grid).appendChild(gridColumn);
+            if (!that.allowEdit) Polymer.dom(that.$.grid).appendChild(gridColumn);
+            else Polymer.dom(that.$.grid).insertBefore(gridColumn, that.querySelector('#editColumn'));
           });
 
-          setTimeout(function(){
+          setTimeout(function () {
             that.columnTemplateMap = columnTemplateMap;
           });
         });
       },
 
-      _columnTemplateMapChanged : function(columnTemplateMap){
+      _columnTemplateMapChanged: function (columnTemplateMap) {
         var columns = Object.keys(columnTemplateMap);
 
         this.columns = columns;
       },
 
-      _updateDisplayedColumns : function(allowColumnPaging, columns, columnPageNum, columnPageSize){
-        if(!this.allowColumnPaging)
+      _updateDisplayedColumns: function (allowColumnPaging, columns, columnPageNum, columnPageSize) {
+        if (!this.allowColumnPaging)
           return;
-        
+
         this._clearGridColumns();
         columns = columns || [];
-        if(columns.length == 0)
+        if (columns.length == 0)
           return;
 
         var columnPageModified = false;
-        if(columnPageNum * columnPageSize > columns.length){
+        if (columnPageNum * columnPageSize > columns.length) {
           columnPageNum = Math.ceil(columns.length / columnPageSize);
           columnPageModified = true;
         }
@@ -369,22 +370,22 @@ Custom property | Description | Default
         var end = this._getEnd(columnPageNum, columnPageSize, columns.length);
 
         var that = this;
-        (columns || []).slice(start - 1, end).forEach(function(column){
+        (columns || []).slice(start - 1, end).forEach(function (column) {
           var gridColumn = that.columnTemplateMap[column];
 
           Polymer.dom(that.$.grid).appendChild(gridColumn);
         });
 
-        if(columnPageModified)
+        if (columnPageModified)
           this.columnPageNum = columnPageNum;
 
         this.pageNum = 1;
       },
 
-      _clearGridColumns : function(){        
+      _clearGridColumns: function () {
         var gridColumns = this.$.grid.querySelectorAll('vaadin-grid-column');
         var that = this;
-        gridColumns.forEach(function(gridColumn){
+        gridColumns.forEach(function (gridColumn) {
           Polymer.dom(that.$.grid).removeChild(gridColumn);
         })
       },
@@ -405,27 +406,27 @@ Custom property | Description | Default
         }
       },
 
-      _itemsChanged : function(items, pageSize, pageNum){
+      _itemsChanged: function (items, pageSize, pageNum) {
         items = items || [];
-        
+
         this._setTotalRecords(items.length);
 
-        if(items.length == 0){
+        if (items.length == 0) {
           this.currentItems = [];
-          return;  
+          return;
         }
 
         var pageModified = false;
-        if(pageNum * pageSize > items.length){
+        if (pageNum * pageSize > items.length) {
           pageNum = Math.ceil(items.length / pageSize);
           pageModified = true;
         }
-        
+
         var start = this._getStart(pageNum, pageSize, items.length);
         var end = this._getEnd(pageNum, pageSize, items.length);
         this.currentItems = items.slice(start - 1, end);
 
-        if(pageModified)
+        if (pageModified)
           this.pageNum = pageNum;
       },
 
