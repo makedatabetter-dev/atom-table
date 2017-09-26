@@ -105,6 +105,10 @@ Custom property | Description | Default
         position: relative;
       }
 
+       :host .no-columns .empty-message {
+        border-top: 1px solid #e1e6ed;
+      }
+
        :host .empty-message p {
         position: absolute;
         top: 25%;
@@ -152,7 +156,7 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
-    <div class="grid">
+    <div class$="[[_getGridClass(columns, items)]]">
       <vaadin-grid id="grid" items="[[currentItems]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
       </vaadin-grid>
       <template is="dom-if" if="[[!_recordsExist(items)]]">
@@ -260,7 +264,7 @@ Custom property | Description | Default
           type: Boolean,
           value: false,
           reflectToAttribute: true,
-          observer : '_allowEditChanged'
+          observer: '_allowEditChanged'
         },
         allowDelete: {
           type: Boolean,
@@ -315,56 +319,56 @@ Custom property | Description | Default
         'modal.secondary': '_delete'
       },
 
-      _createEditColumn : function(){
-        if(this._editColumn)
+      _createEditColumn: function () {
+        if (this._editColumn)
           return this._editColumn;
-        this._editColumn =  this.querySelector('#editColumn');
+        this._editColumn = this.querySelector('#editColumn');
         return this._editColumn;
       },
 
-      _getEditColumnFromGrid : function(){
+      _getEditColumnFromGrid: function () {
         return Polymer.dom(this.$.grid).querySelector('#editColumn');
       },
 
-      _removeEditColumnIfPresent : function(){
+      _removeEditColumnIfPresent: function () {
         var existing = this._getEditColumnFromGrid();
-        if(existing)
+        if (existing)
           Polymer.dom(this.$.grid).removeChild(existing);
       },
 
-      _addEditColumnIfAbsent : function(){
-        if(this._getAllGridColumns().length == 0)
+      _addEditColumnIfAbsent: function () {
+        if (this._getAllGridColumns().length == 0)
           return;
 
         var existing = this._getEditColumnFromGrid();
-        if(!existing)
+        if (!existing)
           Polymer.dom(this.$.grid).appendChild(this._createEditColumn());
       },
 
-      _allowEditChanged : function(value){
-        if(value == true)
+      _allowEditChanged: function (value) {
+        if (value == true)
           this._addEditColumnIfAbsent();
         else
           this._removeEditColumnIfPresent();
       },
 
-      _addColumnsToGrid(columns){
+      _addColumnsToGrid(columns) {
         columns = columns || [];
         var gridDom = Polymer.dom(this.$.grid);
-        (columns || []).forEach(function(column){
+        (columns || []).forEach(function (column) {
           gridDom.appendChild(column);
         });
-        
-        if(this.allowEdit){
+
+        if (this.allowEdit) {
           var existingEditColumn = this._getEditColumnFromGrid();
-          if(!existingEditColumn)
+          if (!existingEditColumn)
             gridDom.appendChild(this._createEditColumn());
         }
       },
 
       ready: function (value) {
         var that = this;
-        
+
         Polymer.dom(this.$.staticColumnTemplates).observeNodes(function (info) {
           if ((info.addedNodes || []).length == 0) return;
 
@@ -379,7 +383,7 @@ Custom property | Description | Default
             columnIndex += 1;
           }
 
-          var columnsToAdd = Object.keys(columnTemplateMap).sort().map(function(key){
+          var columnsToAdd = Object.keys(columnTemplateMap).sort().map(function (key) {
             return columnTemplateMap[key];
           });
           that._addColumnsToGrid(columnsToAdd);
@@ -400,7 +404,7 @@ Custom property | Description | Default
         if (!this.allowColumnPaging)
           return;
 
-        setTimeout(function(){
+        setTimeout(function () {
           this._clearGridColumns();
           columns = columns || [];
           if (columns.length == 0)
@@ -420,7 +424,7 @@ Custom property | Description | Default
             return that.columnTemplateMap[column];
           });
 
-          setTimeout(function(){
+          setTimeout(function () {
             this._addColumnsToGrid(columnsToAdd);
           }.bind(this));
 
@@ -431,7 +435,7 @@ Custom property | Description | Default
         }.bind(this));
       },
 
-      _getAllGridColumns : function(){
+      _getAllGridColumns: function () {
         return this.$.grid.querySelectorAll('vaadin-grid-column');
       },
 
@@ -625,6 +629,10 @@ Custom property | Description | Default
 
       _isEmpty: function () {
         return !this._recordsExist() ? 'empty' : '';
+      },
+
+      _getGridClass: function (columns, items) {
+        return 'grid' + (columns.length > 0 ? '' : ' no-columns') + (items.length > 0 ? '' : ' no-items');
       }
     });
   </script>
