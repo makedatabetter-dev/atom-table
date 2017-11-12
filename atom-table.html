@@ -161,9 +161,11 @@ Custom property | Description | Default
         </template>
       </vaadin-grid>
       <template is="dom-if" if="[[!_recordsExist(items)]]">
-        <div class="empty-message">
-          <p>[[emptyMessage]]</p>
-        </div>
+        <template is="dom-if" if="[[!dataLoadInProgress]]">
+          <div class="empty-message">
+            <p>[[emptyMessage]]</p>
+          </div>
+        </template>
       </template>
     </div>
     <div class="paging">
@@ -196,6 +198,12 @@ Custom property | Description | Default
         dataProvider: {
           type: Object
         },
+
+        dataLoadInProgress: {
+          type: Boolean,
+          value: false
+        },
+
         idField: {
           type: String,
           value: '_id'
@@ -357,26 +365,31 @@ Custom property | Description | Default
 
       _fetchItems: function () {
         var that = this;
-        if (this.dataProvider && this.dataProvider.fetchAll && typeof this.dataProvider.fetchAll === typeof function () { }) {
-          var args = {
-            pnum: this.pageNum,
-            psize: this.pageSize
-          };
+        var dataHookPresent = this.dataProvider && this.dataProvider.fetchAll && typeof this.dataProvider.fetchAll === typeof function () { };
+        if(!dataHookPresent)
+          return;
+        
+        this.set('dataLoadInProgress', true);
 
-          //If column paging allowed, set arguments for the same
-          if (this.allowColumnPaging) {
-            args.colPnum = this.columnPageSize;
-            args.colPsize = this.columnPageSize
-          }
+        var args = {
+          pnum: this.pageNum,
+          psize: this.pageSize
+        };
 
-          this.dataProvider.fetchAll(args)
-            .then(function (response) {
-              that.set('items', response.results);
-              that._setTotalRecords(response.pagingInfo.total)
-            }).catch(function (error) {
-
-            });
+        //If column paging allowed, set arguments for the same
+        if (this.allowColumnPaging) {
+          args.colPnum = this.columnPageSize;
+          args.colPsize = this.columnPageSize
         }
+
+        this.dataProvider.fetchAll(args)
+          .then(function (response) {
+            that.set('items', response.results);
+            that.set('dataLoadInProgress', false);
+            that._setTotalRecords(response.pagingInfo.total)
+          }).catch(function (error) {
+            that.set('dataLoadInProgress', false);
+          });
       },
 
       _save: function (e) {
