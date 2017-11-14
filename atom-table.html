@@ -183,8 +183,10 @@ Custom property | Description | Default
         </div>
       </template>
     </div>
-    <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="Delete"
-      primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="Save">
+    <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" 
+      secondary-action-label="{{modalSecondaryActionLabel}}"
+      primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" 
+      primary-action-label="{{modalPrimaryActionLabel}}">
       <content select=".addnew"></content>
     </atom-modal-dialog>
   </template>
@@ -297,6 +299,14 @@ Custom property | Description | Default
           type: Boolean,
           value: false,
           observer: '_isEditChanged'
+        },
+        modalPrimaryActionLabel: {
+          type: String,
+          value: 'Save'
+        },
+        modalSecondaryActionLabel: {
+          type: String,
+          value: 'Delete'
         }
       },
 
