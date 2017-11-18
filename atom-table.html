@@ -418,6 +418,7 @@ Custom property | Description | Default
               //   }
               // }
               // that.$.grid.clearCache();
+              that.fire('entity-saved', model);
               that._closeModal();
               that._fetchItems();
             }).catch(function (error) {
