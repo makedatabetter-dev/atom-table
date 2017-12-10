@@ -48,6 +48,10 @@ Custom property | Description | Default
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
         }
+
+        --paper-icon-button-disabled:{
+          opacity: 0.5;
+        }
       }
 
        :host[allow-paging] {
@@ -144,8 +148,8 @@ Custom property | Description | Default
         </select>
         <span class="columnPageNum">[[_getStart(columns,columnPageNum,columnPageSize, totalColumns)]]-[[_getEnd(columns,columnPageNum,columnPageSize,totalColumns)]] of [[totalColumns]]</span>
         <div class="pagingButtons">
-          <paper-icon-button id="prevColumnPage" icon="icons:chevron-left" on-tap="_prevColumnPage"></paper-icon-button>
-          <paper-icon-button id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentColumnPageFirst]]" id="prevColumnPage" icon="icons:chevron-left" on-tap="_prevColumnPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentColumnPageLast]]" id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
         </div>
       </template>
     </div>
@@ -241,6 +245,17 @@ Custom property | Description | Default
           value: 1,
           notify: true
         },
+
+        _isCurrentColumnPageFirst:{
+          type: Boolean,
+          value: true
+        },
+
+        _isCurrentColumnPageLast:{
+          type: Boolean,
+          value: false
+        },
+
         totalRecords: {
           type: Number,
           value: 0,
@@ -311,7 +326,8 @@ Custom property | Description | Default
       },
 
       observers: [
-        '_fetchItems(dataProvider,pageSize,pageNum)'
+        '_fetchItems(dataProvider,pageSize,pageNum)',
+        '_checkColumnPaging(totalColumns, columnPageNum)'
       ],
 
       listeners: {
@@ -478,15 +494,34 @@ Custom property | Description | Default
       },
 
       _prevColumnPage: function () {
+        this.columnPageNum = this._getPrevColumnPage();
+      },
+
+      _getPrevColumnPage: function(){
         if (this.columnPageNum > 1) {
-          this.columnPageNum = this.columnPageNum - 1;
+          return this.columnPageNum - 1;
         }
+
+        return this.columnPageNum;
       },
+
       _nextColumnPage: function () {
-        if (this._getEnd(this.columns, this.columnPageNum, this.columnPageSize, this.totalColumns) < this.totalColumns) {
-          this.columnPageNum = this.columnPageNum + 1;
-        }
+        this.columnPageNum = this._getNextColumnPage();
       },
+
+      _getNextColumnPage: function(){
+        if (this._getEnd(this.columns, this.columnPageNum, this.columnPageSize, this.totalColumns) < this.totalColumns) {
+          return this.columnPageNum + 1;
+        }
+
+        return this.columnPageNum;
+      },
+
+      _checkColumnPaging: function(){
+        this._isCurrentColumnPageFirst = this.columnPageNum == this._getPrevColumnPage();
+        
+        this._isCurrentColumnPageLast = this.columnPageNum == this._getNextColumnPage();
+      }
     });
   </script>
 </dom-module>
