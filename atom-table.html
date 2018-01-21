@@ -1,7 +1,9 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../iron-icon/iron-icon.html">
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../atom-modal-dialog/atom-modal-dialog.html">
 <link rel="import" href="../paper-styles/typography.html">
@@ -68,6 +70,15 @@ Custom property | Description | Default
         height: initial;
       }
 
+      :host iron-icon.add-new-icon{
+        --iron-icon-fill-color: var(--atom-table-add-item-color);
+      }
+
+      :host paper-button.add-new{
+        color: var(--atom-table-add-item-color);
+        font-size: 14px;
+      }
+
        :host[allow-paging] vaadin-grid {
         max-height: none;
         height: initial;
@@ -131,10 +142,15 @@ Custom property | Description | Default
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
-        <paper-icon-button class="global-search" icon="icons:search"></paper-icon-button>
+        <paper-input no-label-float="true" class="global-search">
+          <iron-icon icon="icons:search" suffix></iron-icon>
+        </paper-input>
       </template>
       <template is="dom-if" if="{{allowAddNew}}">
-        <paper-icon-button class="add-new" icon="icons:add" on-tap="_addItem"></paper-icon-button>
+        <paper-button class="add-new" on-tap="_addItem">
+          <iron-icon class='add-new-icon' icon="icons:add"></iron-icon>
+          ADD NEW
+        </paper-button>
       </template>
     </div>
     <div class="columnPaging">
@@ -192,6 +208,7 @@ Custom property | Description | Default
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" 
       primary-action-label="{{modalPrimaryActionLabel}}">
       <content select=".addnew"></content>
+      <content select=".delete"></content>
     </atom-modal-dialog>
   </template>
 
@@ -322,6 +339,12 @@ Custom property | Description | Default
         modalSecondaryActionLabel: {
           type: String,
           value: 'Delete'
+        },
+        operationValidators: {
+          type: Object
+        },
+        failureCallbacks: {
+          type: Object
         }
       },
 
@@ -420,45 +443,57 @@ Custom property | Description | Default
 
       _save: function (e) {
         var that = this;
-        if (this.dataProvider && this.dataProvider.save && typeof this.dataProvider.save === typeof function () { }) {
-          this.dataProvider.save(JSON.parse(JSON.stringify(this.updateModel || {})))
-            .then(function (model) {
-              // if (!that._isEdit) {
-              //   that.unshift('items', model);
-              // } else {
-              //   var item = that.$.grid.items.find(function (e) { return e[that.idField] === model[that.idField]; });
-              //   if (item) {
-              //     for (var i in item) {
-              //       item[i] = model[i];
-              //     }
-              //   }
-              // }
-              // that.$.grid.clearCache();
-              that.fire('entity-saved', model);
-              that._closeModal();
-              that._fetchItems();
-            }).catch(function (error) {
-
-            });
-        }
+        var operationType = 'save';
+        this._validateOperationAsync(operationType, this.updateModel)
+        .then(function(){
+          if (that.dataProvider && that.dataProvider.save && typeof that.dataProvider.save === typeof function () { }) {
+            that.dataProvider.save(JSON.parse(JSON.stringify(that.updateModel || {})))
+              .then(function (model) {
+                that.fire('entity-saved', model);
+                that._closeModal();
+                that._fetchItems();
+              }).catch(function (error) {
+                that._invokeFailureCallback(operationType, error);
+              });
+          }
+        });
       },
 
       _delete: function (e) {
         var that = this;
-        if (this.allowDelete && this.dataProvider && this.dataProvider.destroy && typeof this.dataProvider.destroy === typeof function () { }) {
-          this.dataProvider.destroy(JSON.parse(JSON.stringify(this.updateModel)))
+        var operationType = 'delete';
+        this._validateOperationAsync(operationType, this.updateModel)
+        .then(function(){
+          if (that.allowDelete && that.dataProvider && that.dataProvider.destroy && typeof that.dataProvider.destroy === typeof function () { }) {
+            that.dataProvider.destroy(JSON.parse(JSON.stringify(that.updateModel)))
             .then(function (model) {
-              // var items = that.$.grid.items;
-              // that.$.grid.set('items', (items || []).filter(function (i) {
-              //   return i[that.idField] !== model[that.idField];
-              // }));
-              // that.$.grid.clearCache();
               that._closeModal();
               that._fetchItems();
-            }).catch(function (error) {
-
+            }).catch(function(error){
+              that._invokeFailureCallback(operationType, error);
             });
-        }
+          }
+        });
+      },
+
+      _validateOperationAsync: function(operationType, model){
+        var defaultValidation = Promise.resolve();
+
+        var applicableValidator = null;
+
+        var validator = (this.operationValidators || {})[operationType];
+
+        if(validator)
+          return Promise.resolve(validator(model));
+        
+        return defaultValidation;
+      },
+
+      _invokeFailureCallback: function(operationType, errorObject){
+        var callBack = (this.failureCallbacks || {})[operationType];
+
+        if(callBack)
+          callBack(errorObject);
       },
 
       _isEditChanged: function () {
