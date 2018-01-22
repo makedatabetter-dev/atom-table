@@ -206,7 +206,7 @@ Custom property | Description | Default
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" 
       secondary-action-label="{{modalSecondaryActionLabel}}"
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" 
-      primary-action-label="{{modalPrimaryActionLabel}}">
+      primary-action-label="{{_getPrimaryActionLabel(_isEdit, modalPrimaryActionLabel, modalAddActionLabel, modalEditActionLabel)}}">
       <content select=".addnew"></content>
       <content select=".delete"></content>
     </atom-modal-dialog>
@@ -340,6 +340,15 @@ Custom property | Description | Default
           type: String,
           value: 'Delete'
         },
+
+        modalAddActionLabel: function(){
+          type: String
+        },
+
+        modalEditActionLabel: function(){
+          type: String
+        },
+
         operationValidators: {
           type: Object
         },
@@ -556,6 +565,13 @@ Custom property | Description | Default
         this._isCurrentColumnPageFirst = this.columnPageNum == this._getPrevColumnPage();
         
         this._isCurrentColumnPageLast = this.columnPageNum == this._getNextColumnPage();
+      },
+
+      _getPrimaryActionLabel: function(){
+        if(this._isEdit)
+          return this.modalEditActionLabel || this.modalPrimaryActionLabel;
+
+        return this.modalAddActionLabel || this.modalPrimaryActionLabel;
       }
     });
   </script>
