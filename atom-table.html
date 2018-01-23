@@ -7,6 +7,7 @@
 <link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../atom-modal-dialog/atom-modal-dialog.html">
 <link rel="import" href="../paper-styles/typography.html">
+<link rel="import" href="../mdb-search-box/mdb-search-box.html">
 
 <!--
 `atom-table`
@@ -142,9 +143,9 @@ Custom property | Description | Default
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
-        <paper-input no-label-float="true" class="global-search">
-          <iron-icon icon="icons:search" suffix></iron-icon>
-        </paper-input>
+        <mdb-search-box on-search-term-entered='_handleSearchTerm'>
+          <paper-icon-button icon="search" name="search" suffix></paper-icon-button>
+        </mdb-search-box>
       </template>
       <template is="dom-if" if="{{allowAddNew}}">
         <paper-button class="add-new" on-tap="_addItem">
@@ -354,6 +355,11 @@ Custom property | Description | Default
         },
         failureCallbacks: {
           type: Object
+        },
+
+        filterTerm: {
+          type: String,
+          observer: '_fetchItems'
         }
       },
 
@@ -410,6 +416,10 @@ Custom property | Description | Default
         this._showModal();
       },
 
+      _handleSearchTerm: function(e){
+        this.filterTerm = e.detail.searchTerm;
+      },
+
       _showModal: function () {
         var modal = this.querySelector('atom-modal-dialog');
         if (modal) modal.open();
@@ -431,7 +441,8 @@ Custom property | Description | Default
 
         var args = {
           pnum: this.pageNum,
-          psize: this.pageSize
+          psize: this.pageSize,
+          filterTerm: this.filterTerm
         };
 
         //If column paging allowed, set arguments for the same
