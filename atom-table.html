@@ -520,6 +520,7 @@ Custom property | Description | Default
             if (that.allowDelete && that.dataProvider && that.dataProvider.destroy && typeof that.dataProvider.destroy === typeof function () { }) {
               that.dataProvider.destroy(JSON.parse(JSON.stringify(that.updateModel)))
                 .then(function (model) {
+                  that.fire('entity-deleted', model);
                   that._closeModal();
                   that._fetchItems();
                 }).catch(function (error) {
