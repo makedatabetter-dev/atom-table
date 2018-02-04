@@ -68,7 +68,6 @@ Custom property | Description | Default
       :host vaadin-grid {
         max-height: 400px;
         @apply(--atom-table);
-
       }
 
       :host vaadin-grid ::content vaadin-grid-sorter #indicators {
@@ -189,7 +188,7 @@ Custom property | Description | Default
       <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
         <content select="vaadin-grid-column"></content>
         <template is="dom-if" if="[[allowEdit]]">
-          <vaadin-grid-column>
+          <vaadin-grid-column flex-grow='[[editColumnFlexGrow]]' width="[[editColumnWidth]]">
             <template>
               <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0;" on-tap="_editItem"></paper-icon-button>
             </template>
@@ -256,6 +255,16 @@ Custom property | Description | Default
         dataLoadInProgress: {
           type: Boolean,
           value: false
+        },
+
+        editColumnFlexGrow:{
+          type: String,
+          value: '0'
+        },
+
+        editColumnWidth: {
+          type: String,
+          value: '30px'
         },
 
         idField: {
