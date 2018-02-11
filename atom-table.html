@@ -549,7 +549,7 @@ Custom property | Description | Default
         var validator = (this.operationValidators || {})[operationType];
 
         if (validator)
-          return Promise.resolve(validator(model));
+          return validator(model);
 
         return defaultValidation;
       },
