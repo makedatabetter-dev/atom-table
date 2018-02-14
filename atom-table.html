@@ -43,6 +43,7 @@ Custom property | Description | Default
         --vaadin-grid-header-cell: {
           @apply(--atom-table-header-cell);
           white-space: normal;
+          overflow:visible;
         }
         --vaadin-grid-body-cell: {
           @apply(--atom-table-body-cell);
@@ -90,11 +91,17 @@ Custom property | Description | Default
       }
 
       :host vaadin-grid ::content vaadin-grid-sorter[direction=asc] #indicators::before {
-        content: "\2191";
+        content: url('./svgs/arrow_upward.svg');
+        position: relative;
+        top: 5px;
+        left: -10px;
       }
 
       :host vaadin-grid ::content vaadin-grid-sorter[direction=desc] #indicators::before {
-        content: "\2193";
+        content: url('./svgs/arrow_downward.svg');
+        position: relative;
+        top: 5px;
+        left: -10px;
       }
 
       :host vaadin-grid.empty {
