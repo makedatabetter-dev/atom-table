@@ -368,7 +368,8 @@ Custom property | Description | Default
         items: {
           type: Array,
           value: [],
-          observer: '_itemsChanged'
+          observer: '_itemsChanged',
+          notify: true
         },
         activeItem: {
           notify: true
