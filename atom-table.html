@@ -220,8 +220,10 @@ Custom property | Description | Default
         </select>
         <h6 class="pageNum">[[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of [[totalRecords]]</h6>
         <div class="pagingButtons">
-          <paper-icon-button id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
-          <paper-icon-button id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentRowPageFirst(items, pageNum, pageSize, totalRecords)]]" 
+            id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentRowPageLast(items, pageNum, pageSize, totalRecords)]]" 
+            id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
         </div>
       </div>
     </template>
@@ -429,14 +431,22 @@ Custom property | Description | Default
         this.$.grid.clearCache();
       },
 
+      _isCurrentRowPageFirst: function(){
+        return this._getStart() <= 1;
+      },
+
+      _isCurrentRowPageLast: function(){
+        return this._getEnd() >= this.totalRecords;
+      },
+
       _prevPage: function () {
-        if (this._getStart() > 1) {
+        if (!this._isCurrentRowPageFirst()) {
           this.pageNum = this.pageNum - 1;
         }
       },
 
       _nextPage: function () {
-        if (this._getEnd() < this.totalRecords) {
+        if (!this._isCurrentRowPageLast()) {
           this.pageNum = this.pageNum + 1;
         }
       },
