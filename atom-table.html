@@ -295,7 +295,8 @@ Custom property | Description | Default
         },
         pageSize: {
           type: Number,
-          value: 10
+          value: 10,
+          observer: '_pageSizeUpdated'
         },
         columnPageSize: {
           type: Number,
@@ -646,6 +647,13 @@ Custom property | Description | Default
           return this.modalEditActionLabel || this.modalPrimaryActionLabel;
 
         return this.modalAddActionLabel || this.modalPrimaryActionLabel;
+      },
+
+      _pageSizeUpdated: function(){
+        if(!this.totalRecords || this._getStart() <= this.totalRecords)
+          return;
+
+        this.pageNum = Math.ceil(this.totalRecords / this.pageSize);
       }
     });
   </script>
