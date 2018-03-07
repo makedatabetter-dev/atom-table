@@ -414,7 +414,7 @@ Custom property | Description | Default
 
         filterTerm: {
           type: String,
-          observer: '_fetchItems'
+          observer: '_filterTermChanged'
         }
       },
 
@@ -492,6 +492,13 @@ Custom property | Description | Default
         var modal = this.querySelector('atom-modal-dialog');
         this.set('updateModel', undefined);
         if (modal) modal.close();
+      },
+
+      _filterTermChanged: function(){
+        if(this.pageNum == 1)
+          this._fetchItems();
+        else
+          this.pageNum = 1;
       },
 
       _fetchItems: function () {
@@ -655,6 +662,7 @@ Custom property | Description | Default
 
         this.pageNum = Math.ceil(this.totalRecords / this.pageSize);
       }
+
     });
   </script>
 </dom-module>
