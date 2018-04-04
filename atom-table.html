@@ -301,7 +301,8 @@ Custom property | Description | Default
         columnPageSize: {
           type: Number,
           value: 3,
-          notify: true
+          notify: true,
+          observer: '_columnPageSizeUpdated'
         },
         pageNum: {
           type: Number,
@@ -420,7 +421,7 @@ Custom property | Description | Default
 
       observers: [
         '_fetchItems(dataProvider,pageSize,pageNum)',
-        '_checkColumnPaging(totalColumns, columnPageNum)'
+        '_checkColumnPaging(totalColumns, columnPageNum, columnPageSize)'
       ],
 
       listeners: {
@@ -661,6 +662,13 @@ Custom property | Description | Default
           return;
 
         this.pageNum = Math.ceil(this.totalRecords / this.pageSize);
+      },
+
+      _columnPageSizeUpdated: function(){
+        if(!this.totalColumns || this._getStart(this.columns, this.columnPageNum, this.columnPageSize, this.totalColumns) <= this.totalColumns)
+          return;
+
+        this.columnPageNum = Math.ceil(this.totalColumns / this.columnPageSize);
       }
 
     });
