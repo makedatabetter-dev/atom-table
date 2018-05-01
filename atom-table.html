@@ -50,6 +50,7 @@ Custom property | Description | Default
           @apply(--atom-table-body-cell);
           flex-direction: column;
           justify-content: center;
+          text-overflow:ellipsis;
         }
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
@@ -70,6 +71,18 @@ Custom property | Description | Default
       :host vaadin-grid {
         max-height: 400px;
         @apply(--atom-table);
+      }
+
+      :host vaadin-grid#grid {
+        --vaadin-grid-body-cell: {
+          overflow: hidden;       
+          white-space: nowrap; 
+          text-overflow: ellipsis;           
+          flex-direction: column;
+          justify-content: center; 
+          display: block ;
+          font-size: 12px;
+        }
       }
 
       :host vaadin-grid ::content vaadin-grid-sorter #indicators {
@@ -162,6 +175,7 @@ Custom property | Description | Default
         justify-content: center;
         flex-direction: column;
         align-items: center;
+        min-height: 180px;
       }
       :host .empty-message span {
         
@@ -182,6 +196,8 @@ Custom property | Description | Default
       :host .no-columns .empty-message {
         border-top: 1px solid #e1e6ed;
       }
+
+      :host
 
       :host .empty-message p {
         position: absolute;
@@ -225,7 +241,7 @@ Custom property | Description | Default
       </vaadin-grid>
       <template is="dom-if" if="[[!_recordsExist(items)]]">
         <template is="dom-if" if="[[!dataLoadInProgress]]">
-          <div class="empty-message">
+          <div class="empty-mes sage">
             <iron-icon icon="image:grid-off" class="empty-message-icon"></iron-icon>
             <span>[[emptyMessage]]</span>
           </div>
