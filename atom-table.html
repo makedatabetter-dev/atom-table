@@ -232,7 +232,7 @@ Custom property | Description | Default
         </template>
       </template>
     </div>
-    <template is="dom-if" if="[[!_recordsExist(items)]]">
+    <template is="dom-if" if="[[_recordsExist(items)]]">
     <template is="dom-if" if="{{allowPaging}}">
       <div class="paging">
         <h6>Rows per page</h6>
