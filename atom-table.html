@@ -226,13 +226,13 @@ Custom property | Description | Default
       <template is="dom-if" if="[[!_recordsExist(items)]]">
         <template is="dom-if" if="[[!dataLoadInProgress]]">
           <div class="empty-message">
-            <!-- <p>[[emptyMessage]]</p> -->
             <iron-icon icon="image:grid-off" class="empty-message-icon"></iron-icon>
             <span>[[emptyMessage]]</span>
           </div>
         </template>
       </template>
     </div>
+    <template is="dom-if" if="[[!_recordsExist(items)]]">
     <template is="dom-if" if="{{allowPaging}}">
       <div class="paging">
         <h6>Rows per page</h6>
@@ -266,6 +266,7 @@ Custom property | Description | Default
           <paper-icon-button disabled$="[[_isCurrentColumnPageLast]]" id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
         </div>
       </div>
+    </template>
     </template>
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="{{modalSecondaryActionLabel}}"
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="{{_getPrimaryActionLabel(_isEdit, modalPrimaryActionLabel, modalAddActionLabel, modalEditActionLabel)}}">
