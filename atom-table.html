@@ -47,9 +47,13 @@ Custom property | Description | Default
           overflow:visible;
         }
         --vaadin-grid-body-cell: {
-          @apply(--atom-table-body-cell);
+          overflow: hidden;       
+          white-space: nowrap; 
+          text-overflow: ellipsis;           
           flex-direction: column;
-          justify-content: center;
+          justify-content: center; 
+          display: block;
+          @apply(--atom-table-body-cell);
         }
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
@@ -162,6 +166,7 @@ Custom property | Description | Default
         justify-content: center;
         flex-direction: column;
         align-items: center;
+        min-height: 180px;
       }
       :host .empty-message span {
         
