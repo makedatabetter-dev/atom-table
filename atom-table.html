@@ -238,22 +238,23 @@ Custom property | Description | Default
       </template>
     </div>
     <template is="dom-if" if="[[_recordsExist(items)]]">
-    <template is="dom-if" if="{{allowPaging}}">
-      <div class="paging">
-        <h6>Rows per page</h6>
-        <select id="pageSize" class="pageSize" value="{{pageSize::change}}">
-          <option>10</option>
-          <option>20</option>
-          <option>50</option>
-        </select>
-        <h6 class="pageNum">[[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of [[totalRecords]]</h6>
-        <div class="pagingButtons">
-          <paper-icon-button disabled$="[[_isCurrentRowPageFirst(items, pageNum, pageSize, totalRecords)]]" 
-            id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
-          <paper-icon-button disabled$="[[_isCurrentRowPageLast(items, pageNum, pageSize, totalRecords)]]" 
-            id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
+      <template is="dom-if" if="{{allowPaging}}">
+        <div class="paging">
+          <h6>Rows per page</h6>
+          <select id="pageSize" class="pageSize" value="{{pageSize::change}}">
+            <option>10</option>
+            <option>20</option>
+            <option>50</option>
+          </select>
+          <h6 class="pageNum">[[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of [[totalRecords]]</h6>
+          <div class="pagingButtons">
+            <paper-icon-button disabled$="[[_isCurrentRowPageFirst(items, pageNum, pageSize, totalRecords)]]" 
+              id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
+            <paper-icon-button disabled$="[[_isCurrentRowPageLast(items, pageNum, pageSize, totalRecords)]]" 
+              id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
+          </div>
         </div>
-      </div>
+      </template>
     </template>
     <template is="dom-if" if="[[allowColumnPaging]]">
       <div class="columnPaging">
@@ -271,7 +272,6 @@ Custom property | Description | Default
           <paper-icon-button disabled$="[[_isCurrentColumnPageLast]]" id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
         </div>
       </div>
-    </template>
     </template>
     <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="{{modalSecondaryActionLabel}}"
       primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="{{_getPrimaryActionLabel(_isEdit, modalPrimaryActionLabel, modalAddActionLabel, modalEditActionLabel)}}">
