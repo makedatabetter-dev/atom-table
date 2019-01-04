@@ -260,10 +260,9 @@ Custom property | Description | Default
       <div class="columnPaging">
         <h6>Columns per page</h6>
         <select id="columnPageSize" class="pageSize" value="{{columnPageSize::change}}">
-          <option>3</option>
-          <option>5</option>
-          <option>7</option>
-          <option>10</option>
+          <template is='dom-repeat' items='[[_columnPaginationOptions]]' as='option'>
+            <option>[[option]]</option>
+          </template>
         </select>
         <h6 class="pageNum">[[_getStart(columns,columnPageNum,columnPageSize, totalColumns)]]-[[_getEnd(columns,columnPageNum,columnPageSize,totalColumns)]]
           of [[totalColumns]]</h6>
@@ -445,6 +444,16 @@ Custom property | Description | Default
         filterTerm: {
           type: String,
           observer: '_filterTermChanged'
+        },
+
+        columnPaginationOptions: {
+          type: Array,
+          observer: '_columnPaginationOptionsChanged'
+        },
+
+        _columnPaginationOptions: {
+          type: Array,
+          value: [3,5,7,10]
         }
       },
 
@@ -456,6 +465,17 @@ Custom property | Description | Default
       listeners: {
         'modal.primary': '_save',
         'modal.secondary': '_delete'
+      },
+
+      attached: function(){
+        this.querySelector('#columnPageSize').selectedIndex = this.columnPaginationOptions.indexOf(this.columnPageSize);
+      },
+
+      _columnPaginationOptionsChanged: function(value){
+        if((value || []).length == 0)
+          this._columnPaginationOptions = [3,5,7,10];
+        else
+          this._columnPaginationOptions = value;
       },
 
       _itemsChanged: function () {
