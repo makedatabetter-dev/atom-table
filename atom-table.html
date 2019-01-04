@@ -468,7 +468,8 @@ Custom property | Description | Default
       },
 
       attached: function(){
-        this.querySelector('#columnPageSize').selectedIndex = this.columnPaginationOptions.indexOf(this.columnPageSize);
+        (this.querySelector('#columnPageSize') || {}).selectedIndex = 
+          (this._columnPaginationOptions || []).indexOf(this.columnPageSize);
       },
 
       _columnPaginationOptionsChanged: function(value){
