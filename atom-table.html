@@ -324,6 +324,7 @@ Custom property | Description | Default
         pageSize: {
           type: Number,
           value: 10,
+          notify: true,
           observer: '_pageSizeUpdated'
         },
         columnPageSize: {
@@ -334,7 +335,8 @@ Custom property | Description | Default
         },
         pageNum: {
           type: Number,
-          value: 1
+          value: 1,
+          notify: true
         },
         columnPageNum: {
           type: Number,
@@ -357,8 +359,7 @@ Custom property | Description | Default
 
         totalRecords: {
           type: Number,
-          value: 0,
-          readOnly: true
+          value: 0
         },
         totalColumns: {
           type: Number,
