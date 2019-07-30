@@ -3,7 +3,7 @@
   "main": "atom-table.html",
   "dependencies": {
     "polymer": "Polymer/polymer#^1.4.0",
-    "vaadin-grid": "vaadin/vaadin-grid#^2.0.2",
+    "vaadin-grid": "vaadin/vaadin-grid#2.0.3",
     "atom-modal-dialog": "git://github.com/makedatabetter-dev/atom-modal-dialog.git",
     "mdb-search-box": "git://github.com/makedatabetter-dev/mdb-search-box.git"
   },

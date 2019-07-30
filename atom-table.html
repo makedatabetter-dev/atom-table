@@ -218,8 +218,11 @@ Custom property | Description | Default
       </template>
     </div>
     <div class$="[[_getGridClass(columns, items)]]">
-      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]">
+      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]"
+        expanded-items='[[expandedItems]]'>
+
         <content select="vaadin-grid-column"></content>
+
         <template is="dom-if" if="[[allowEdit]]">
           <vaadin-grid-column flex-grow='[[editColumnFlexGrow]]' width="[[editColumnWidth]]">
             <template>
@@ -291,6 +294,11 @@ Custom property | Description | Default
       properties: {
         dataProvider: {
           type: Object
+        },
+
+        expandedItems: {
+          type: Array,
+          value: []
         },
 
         dataLoadInProgress: {
@@ -489,7 +497,7 @@ Custom property | Description | Default
           this._columnPaginationOptions = value;
       },
 
-      _itemsChanged: function () {
+      _itemsChanged: function (items) {
         this.$.grid.clearCache();
       },
 
