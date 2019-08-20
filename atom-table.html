@@ -38,23 +38,27 @@ Custom property | Description | Default
       :host {
         display: block;
         background: var(--atom-table-bg, #fff);
+
         --vaadin-grid-cell: {
           @apply(--atom-table-cell);
         }
+
         --vaadin-grid-header-cell: {
           @apply(--atom-table-header-cell);
           white-space: normal;
-          overflow:visible;
+          overflow: visible;
         }
+
         --vaadin-grid-body-cell: {
-          overflow: hidden;       
-          white-space: nowrap; 
-          text-overflow: ellipsis;           
+          overflow: hidden;
+          white-space: nowrap;
+          text-overflow: ellipsis;
           flex-direction: column;
-          justify-content: center; 
+          justify-content: center;
           /* display: block; */
           @apply(--atom-table-body-cell);
         }
+
         --vaadin-grid-body-row-odd-cell: {
           @apply(--atom-table-odd-row-cell);
         }
@@ -62,6 +66,7 @@ Custom property | Description | Default
         --paper-icon-button-disabled: {
           opacity: 0.5;
         }
+
         --mdb-search-box-container: {
           margin: 10px 0;
         }
@@ -157,7 +162,7 @@ Custom property | Description | Default
       }
 
       :host .empty-message {
-        background-color: #fcfdff;  
+        background-color: #fcfdff;
         border-bottom: 1px solid #e1e6ed;
         position: relative;
         width: initial;
@@ -168,14 +173,16 @@ Custom property | Description | Default
         align-items: center;
         min-height: 180px;
       }
+
       :host .empty-message span {
-        
+
         align-content: center;
         font-family: Arial, Helvetica, sans-serif;
         font-size: large;
         color: #9ba0a7
       }
-      :host .empty-message-icon  {
+
+      :host .empty-message-icon {
         fill: #9ba0a7;
         width: 102px;
         height: 102px;
@@ -207,8 +214,9 @@ Custom property | Description | Default
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
-        <mdb-search-box show-search-controls on-search-term-entered='_handleSearchTerm' placeholder="{{searchPlaceholder}}">
-          
+        <mdb-search-box show-search-controls on-search-term-entered='_handleSearchTerm'
+          placeholder="{{searchPlaceholder}}">
+
         </mdb-search-box>
       </template>
       <template is="dom-if" if="{{allowAddNew}}">
@@ -227,7 +235,8 @@ Custom property | Description | Default
         <template is="dom-if" if="[[allowEdit]]">
           <vaadin-grid-column flex-grow='[[editColumnFlexGrow]]' width="[[editColumnWidth]]">
             <template>
-              <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0px;bottom:4px" on-tap="_editItem"></paper-icon-button>
+              <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0px;bottom:4px"
+                on-tap="_editItem"></paper-icon-button>
             </template>
           </vaadin-grid-column>
         </template>
@@ -252,11 +261,13 @@ Custom property | Description | Default
               <option>50</option>
             </select>
           </template>
-          <h6 class="pageNum">[[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of [[totalRecords]]</h6>
+          <h6 class="pageNum">
+            [[_getStart(items,pageNum,pageSize,totalRecords)]]-[[_getEnd(items,pageNum,pageSize,totalRecords)]] of
+            [[totalRecords]]</h6>
           <div class="pagingButtons">
-            <paper-icon-button disabled$="[[_isCurrentRowPageFirst(items, pageNum, pageSize, totalRecords)]]" 
+            <paper-icon-button disabled$="[[_isCurrentRowPageFirst(items, pageNum, pageSize, totalRecords)]]"
               id="prevPage" icon="icons:chevron-left" on-tap="_prevPage"></paper-icon-button>
-            <paper-icon-button disabled$="[[_isCurrentRowPageLast(items, pageNum, pageSize, totalRecords)]]" 
+            <paper-icon-button disabled$="[[_isCurrentRowPageLast(items, pageNum, pageSize, totalRecords)]]"
               id="nextPage" icon="icons:chevron-right" on-tap="_nextPage"></paper-icon-button>
           </div>
         </div>
@@ -272,16 +283,21 @@ Custom property | Description | Default
             </template>
           </select>
         </template>
-        <h6 class="pageNum">[[_getStart(columns,columnPageNum,columnPageSize, totalColumns)]]-[[_getEnd(columns,columnPageNum,columnPageSize,totalColumns)]]
+        <h6 class="pageNum">[[_getStart(columns,columnPageNum,columnPageSize,
+          totalColumns)]]-[[_getEnd(columns,columnPageNum,columnPageSize,totalColumns)]]
           of [[totalColumns]]</h6>
         <div class="pagingButtons">
-          <paper-icon-button disabled$="[[_isCurrentColumnPageFirst]]" id="prevColumnPage" icon="icons:chevron-left" on-tap="_prevColumnPage"></paper-icon-button>
-          <paper-icon-button disabled$="[[_isCurrentColumnPageLast]]" id="nextColumnPage" icon="icons:chevron-right" on-tap="_nextColumnPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentColumnPageFirst]]" id="prevColumnPage" icon="icons:chevron-left"
+            on-tap="_prevColumnPage"></paper-icon-button>
+          <paper-icon-button disabled$="[[_isCurrentColumnPageLast]]" id="nextColumnPage" icon="icons:chevron-right"
+            on-tap="_nextColumnPage"></paper-icon-button>
         </div>
       </div>
     </template>
-    <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]" secondary-action-label="{{modalSecondaryActionLabel}}"
-      primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]" primary-action-label="{{_getPrimaryActionLabel(_isEdit, modalPrimaryActionLabel, modalAddActionLabel, modalEditActionLabel)}}">
+    <atom-modal-dialog id="modal" secondary-action-allowed="[[_allowDelete(allowDelete,_isEdit)]]"
+      secondary-action-label="{{modalSecondaryActionLabel}}"
+      primary-action-allowed="[[_allowSave(allowAddNew,allowEdit)]]"
+      primary-action-label="{{_getPrimaryActionLabel(_isEdit, modalPrimaryActionLabel, modalAddActionLabel, modalEditActionLabel)}}">
       <content select=".addnew"></content>
       <content select=".delete"></content>
     </atom-modal-dialog>
@@ -307,7 +323,7 @@ Custom property | Description | Default
           value: false
         },
 
-        editColumnFlexGrow:{
+        editColumnFlexGrow: {
           type: String,
           value: '0'
         },
@@ -472,7 +488,7 @@ Custom property | Description | Default
 
         _columnPaginationOptions: {
           type: Array,
-          value: [3,5,7,10]
+          value: [3, 5, 7, 10]
         }
       },
 
@@ -486,14 +502,14 @@ Custom property | Description | Default
         'modal.secondary': '_delete'
       },
 
-      attached: function(){
-        (this.querySelector('#columnPageSize') || {}).selectedIndex = 
+      attached: function () {
+        (this.querySelector('#columnPageSize') || {}).selectedIndex =
           (this._columnPaginationOptions || []).indexOf(this.columnPageSize);
       },
 
-      _columnPaginationOptionsChanged: function(value){
-        if((value || []).length == 0)
-          this._columnPaginationOptions = [3,5,7,10];
+      _columnPaginationOptionsChanged: function (value) {
+        if ((value || []).length == 0)
+          this._columnPaginationOptions = [3, 5, 7, 10];
         else
           this._columnPaginationOptions = value;
       },
@@ -502,11 +518,11 @@ Custom property | Description | Default
         this.$.grid.clearCache();
       },
 
-      _isCurrentRowPageFirst: function(){
+      _isCurrentRowPageFirst: function () {
         return this._getStart() <= 1;
       },
 
-      _isCurrentRowPageLast: function(){
+      _isCurrentRowPageLast: function () {
         return this._getEnd() >= this.totalRecords;
       },
 
@@ -566,8 +582,8 @@ Custom property | Description | Default
         if (modal) modal.close();
       },
 
-      _filterTermChanged: function(){
-        if(this.pageNum == 1)
+      _filterTermChanged: function () {
+        if (this.pageNum == 1)
           this._fetchItems();
         else
           this.pageNum = 1;
@@ -597,10 +613,21 @@ Custom property | Description | Default
           .then(function (response) {
             that.set('items', response.results);
             that.set('dataLoadInProgress', false);
-            that._setTotalRecords(response.pagingInfo.total)
+            that._setTotalRecords(response.pagingInfo.total);
+            that._prevPageIfApplies();
           }).catch(function (error) {
             that.set('dataLoadInProgress', false);
           });
+      },
+
+      _prevPageIfApplies: function () {
+        if (!this._recordsExist()) {
+          if (this.allowColumnPaging && this.columnPageNum > 1) {
+            this.columnPageNum = this.columnPageNum - 1;
+          } else if (this.allowPaging && this.pageNum > 1) {
+            this.pageNum = this.pageNum - 1;
+          }
+        }
       },
 
       _save: function (e) {
@@ -631,6 +658,7 @@ Custom property | Description | Default
                 .then(function (model) {
                   that.fire('entity-deleted', model);
                   that._closeModal();
+                  //change pagination in case no items in current table
                   that._fetchItems();
                 }).catch(function (error) {
                   that._invokeFailureCallback(operationType, error);
@@ -728,15 +756,15 @@ Custom property | Description | Default
         return this.modalAddActionLabel || this.modalPrimaryActionLabel;
       },
 
-      _pageSizeUpdated: function(){
-        if(!this.totalRecords || this._getStart() <= this.totalRecords)
+      _pageSizeUpdated: function () {
+        if (!this.totalRecords || this._getStart() <= this.totalRecords)
           return;
 
         this.pageNum = Math.ceil(this.totalRecords / this.pageSize);
       },
 
-      _columnPageSizeUpdated: function(){
-        if(!this.totalColumns || this._getStart(this.columns, this.columnPageNum, this.columnPageSize, this.totalColumns) <= this.totalColumns)
+      _columnPageSizeUpdated: function () {
+        if (!this.totalColumns || this._getStart(this.columns, this.columnPageNum, this.columnPageSize, this.totalColumns) <= this.totalColumns)
           return;
 
         this.columnPageNum = Math.ceil(this.totalColumns / this.columnPageSize);
