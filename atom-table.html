@@ -1,6 +1,7 @@
 <link rel="import" href="../polymer/polymer.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid.html">
 <link rel="import" href="../vaadin-grid/vaadin-grid-sorter.html">
+<link rel="import" href="../vaadin-context-menu/vaadin-context-menu.html">
 <link rel="import" href="../paper-input/paper-input.html">
 <link rel="import" href="../iron-icons/iron-icons.html">
 <link rel="import" href="../iron-icon/iron-icon.html">
@@ -211,6 +212,14 @@ Custom property | Description | Default
           max-height: 650px;
         }
       }
+
+      :host .context-menu-item {
+        background-color: #fff;
+      }
+
+      :host .context-menu-item:hover {
+        background-color: #eee;
+      }
     </style>
     <div class="actions">
       <template is="dom-if" if="{{allowGlobalSearch}}">
@@ -227,20 +236,31 @@ Custom property | Description | Default
       </template>
     </div>
     <div class$="[[_getGridClass(columns, items)]]">
-      <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]"
-        expanded-items='[[expandedItems]]'>
-
-        <content select="vaadin-grid-column"></content>
-
-        <template is="dom-if" if="[[allowEdit]]">
-          <vaadin-grid-column flex-grow='[[editColumnFlexGrow]]' width="[[editColumnWidth]]">
-            <template>
-              <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0px;bottom:4px"
-                on-tap="_editItem"></paper-icon-button>
+      <vaadin-context-menu selector=".show-context">
+        <template>
+          <paper-listbox>
+            <template is="dom-repeat" items="{{_contextMenuItems}}">
+              <paper-item class="context-menu-item" on-tap="_onContextMenuItemClick"
+                target-args$="[[_getTargetArgs(target)]]" data-args$=[[item.actionKey]]>{{item.name}}
+              </paper-item>
             </template>
-          </vaadin-grid-column>
+          </paper-listbox>
         </template>
-      </vaadin-grid>
+        <vaadin-grid id="grid" items="[[items]]" active-item="{{activeItem}}" class$="[[_isEmpty(items)]]"
+          expanded-items='[[expandedItems]]'>
+
+          <content select="vaadin-grid-column"></content>
+
+          <template is="dom-if" if="[[allowEdit]]">
+            <vaadin-grid-column flex-grow='[[editColumnFlexGrow]]' width="[[editColumnWidth]]">
+              <template>
+                <paper-icon-button id="edit" icon="icons:more-vert" style="position:absolute;right:0px;bottom:4px"
+                  on-tap="_editItem"></paper-icon-button>
+              </template>
+            </vaadin-grid-column>
+          </template>
+        </vaadin-grid>
+      </vaadin-context-menu>
       <template is="dom-if" if="[[!_recordsExist(items)]]">
         <template is="dom-if" if="[[!dataLoadInProgress]]">
           <div class="empty-message">
@@ -489,6 +509,11 @@ Custom property | Description | Default
         _columnPaginationOptions: {
           type: Array,
           value: [3, 5, 7, 10]
+        },
+
+        _contextMenuItems: {
+          type: Array,
+          value: [{ name: "Search", actionKey: 1 }]
         }
       },
 
@@ -505,6 +530,27 @@ Custom property | Description | Default
       attached: function () {
         (this.querySelector('#columnPageSize') || {}).selectedIndex =
           (this._columnPaginationOptions || []).indexOf(this.columnPageSize);
+
+        const contextMenu = document.querySelector('vaadin-context-menu');
+        contextMenu.$.overlay.backdropElement.style.display = 'none';
+      },
+
+      _onContextMenuItemClick: function (e, target) {
+        var args = e.target.getAttribute('data-args');
+        var targetArgs = e.target.getAttribute('target-args');
+
+        if (!isNaN(args)) {
+          args = parseInt(args);
+        }
+
+        this.fire('atom-table-context-item-clicked', {
+          actionKey: args,
+          itemArgs: targetArgs
+        });
+      },
+
+      _getTargetArgs: function (target) {
+        return target.getAttribute('data-args');
       },
 
       _columnPaginationOptionsChanged: function (value) {

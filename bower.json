@@ -5,7 +5,8 @@
     "polymer": "Polymer/polymer#^1.4.0",
     "vaadin-grid": "vaadin/vaadin-grid#2.0.3",
     "atom-modal-dialog": "git://github.com/makedatabetter-dev/atom-modal-dialog.git",
-    "mdb-search-box": "git://github.com/makedatabetter-dev/mdb-search-box.git"
+    "mdb-search-box": "git://github.com/makedatabetter-dev/mdb-search-box.git",
+    "vaadin-context-menu": "^1.0.2"
   },
   "devDependencies": {
     "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
