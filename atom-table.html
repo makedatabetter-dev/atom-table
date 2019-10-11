@@ -213,12 +213,16 @@ Custom property | Description | Default
         }
       }
 
-      :host .context-menu-item {
-        background-color: #fff;
+      .context-menu-item {
+        background-color: white;
+        min-width: 100px;
+        text-align: center;
+        display: grid;
       }
 
-      :host .context-menu-item:hover {
-        background-color: #eee;
+      .context-menu-item:hover {
+        background-color: var(--app-primary-color);
+        color: white;
       }
     </style>
     <div class="actions">
